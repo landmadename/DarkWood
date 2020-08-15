@@ -25,6 +25,12 @@ Page({
     }
   },
 
+  tap_intro_button: function() {
+    wx.navigateTo({
+      url: '../intro/intro',
+    })
+  },
+
   // 通过点击设置当前的panel id
   tap_to_change_choose_panel: function(e) {
     var panel_id = parseInt(e.currentTarget.dataset.panel_id)
