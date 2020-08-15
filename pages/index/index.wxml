@@ -1,0 +1,72 @@
+<view class="body">
+  <!-- 面板区总高度380rpx，其余为显示控制区 -->
+  <canvas type="2d" id="three" style="width:750rpx;height:{{canvasHeight}}rpx;"></canvas>
+  <!-- 面板区 -->
+  <view class="pannel">
+    <!-- 调整滑块 -->
+    <view class="slider_box">
+      <slider min="0" max="200" value="80" activeColor="#ffe75e"></slider>
+    </view>
+    <!-- 选择区 -->
+    <view class="choose_box">
+      <!-- 框条选择面板 -->
+      <view class="choose_panel_frames" wx:if="{{current_choose_panel==0}}">
+        <view class="qr_item">
+          <view class="qr_icon"></view>
+        </view>
+        <scroll-view scroll-x="true" class="frames_box" enable-flex="true">
+          <block wx:for="{{[1, 2, 3, 4, 5, 6, 7, 8, 9]}}" wx:key="*this">
+            <image class="choose_item" src="../res/pics/frame.png"></image>
+          </block>
+        </scroll-view>
+      </view>
+      <!-- 卡纸选择面板 -->
+      <view class="choose_panel_frames" wx:if="{{current_choose_panel==1}}">
+        <view class="qr_item">
+          <view class="qr_icon"></view>
+        </view>
+        <scroll-view scroll-x="true" class="frames_box" enable-flex="true">
+          <block wx:for="{{[1, 2, 3]}}" wx:key="*this">
+            <image class="choose_item" src="../res/pics/frame.png"></image>
+          </block>
+        </scroll-view>
+      </view>
+      <!-- 场景选择面板 -->
+      <view class="choose_panel_frames" wx:if="{{current_choose_panel==2}}">
+        <view class="qr_item">
+          <view class="qr_icon"></view>
+        </view>
+        <scroll-view scroll-x="true" class="frames_box" enable-flex="true">
+          <block wx:for="{{[1, 2]}}" wx:key="*this">
+            <image class="choose_item" src="../res/pics/frame.png"></image>
+          </block>
+        </scroll-view>
+      </view>
+    </view>
+
+    <!-- 菜单栏 -->
+    <view class="menu_selected_mark" style="transform: translateX({{150*current_choose_panel+65}}rpx)"></view>
+    <view class="menu_box">
+      <view class="frame menu_item" bindtap="tap_to_change_choose_panel" data-panel_id="0">
+        <view class="frame_icon icon"></view>
+        <text>画框</text>
+      </view>
+      <view class="cardboard menu_item" bindtap="tap_to_change_choose_panel" data-panel_id="1">
+        <view class="cardboard_icon icon"></view>
+        <text>卡纸</text>
+      </view>
+      <view class="scene menu_item" bindtap="tap_to_change_choose_panel" data-panel_id="2">
+        <view class="scene_icon icon"></view>
+        <text>场景</text>
+      </view>
+      <view class="AR menu_item">
+        <view class="AR_icon icon"></view>
+        <text>AR</text>
+      </view>
+      <view class="save menu_item">
+        <view class="save_icon icon"></view>
+        <text>画框</text>
+      </view>
+    </view>
+  </view>
+</view>
