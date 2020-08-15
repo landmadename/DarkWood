@@ -8,7 +8,21 @@ Page({
   data: {
     current_choose_panel: 0,
 
-    canvasHeight: 600
+    canvasHeight: 600,
+    frame_size: 80,
+    cardboard_size: 80,
+  },
+
+  slider_change: function(e) {
+    if (this.data.current_choose_panel == 0) {
+      this.setData({
+        frame_size: e.detail.value
+      })
+    } else {
+      this.setData({
+        cardboard_size: e.detail.value
+      })
+    }
   },
 
   // 通过点击设置当前的panel id
