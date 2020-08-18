@@ -1,6 +1,11 @@
 <view class="body">
+  <!-- <l-image-clipper show="{{show}}" image-url="{{imageUrl}}"bindlinclip="linclip" width="600">
+  </l-image-clipper> -->
+  <simple-crop wx:if="{{simple_crop_show}}" size="{{canvas_size}}" src="{{imageUrl}}" cropSizePercent="{{0.75}}" borderColor="#fff" bindcropClose="close_crop" bindcropCrop="crop_complete"></simple-crop>
+  <canvas type="2d" id="OffscreenCanvas" style="width:0px;height:0px;"></canvas>
+  <canvas type="2d" id="three" style="width:750rpx;height:{{canvas_size.height}}px;position:absolute;z-index:100"></canvas>
+  <camera device-position="front" flash="off" resolution="low" frame-size="medium" binderror="error" style="width:750rpx;height:{{canvas_size.height}}px;"></camera>
   <!-- 面板区总高度380rpx，其余为显示控制区 -->
-  <canvas type="2d" id="three" style="width:750rpx;height:{{canvasHeight}}rpx;"></canvas>
   <!-- 面板区 -->
   <view class="pannel">
     <view class="slider_and_intro">
@@ -40,7 +45,7 @@
         </view>
         <scroll-view scroll-x="true" class="frames_box" enable-flex="true">
           <block wx:for="{{[1, 2, 3]}}" wx:key="*this">
-            <image class="choose_item" src="../res/pics/frame.png"></image>
+            <image class="choose_item" src="../../res/pics/frame.png"></image>
           </block>
         </scroll-view>
       </view>
@@ -51,7 +56,7 @@
         </view>
         <scroll-view scroll-x="true" class="frames_box" enable-flex="true">
           <block wx:for="{{[1, 2]}}" wx:key="*this">
-            <image class="choose_item" src="../res/pics/frame.png"></image>
+            <image class="choose_item" src="../../res/pics/frame.png"></image>
           </block>
         </scroll-view>
       </view>
@@ -76,9 +81,13 @@
         <view class="scene_icon icon"></view>
         <text>场景</text>
       </view>
-      <view class="AR menu_item">
+      <view class="AR menu_item" wx:if="{{mode==='pic'}}" bindtap="to_AR">
         <view class="AR_icon icon"></view>
         <text>AR</text>
+      </view>
+      <view class="pic menu_item" wx:if="{{mode==='AR'}}" bindtap="to_pic">
+        <view class="pic_icon icon"></view>
+        <text>选图</text>
       </view>
       <view class="save menu_item">
         <view class="save_icon icon"></view>

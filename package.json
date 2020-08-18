@@ -1,0 +1,14 @@
+{
+  "name": "darkwood",
+  "version": "1.0.0",
+  "description": "1. 构建简单的UI框架\r 2. 完成“切换选择区”\r 3. 开始版本控制\r 4. 完成\"调整滑块\",修复了它在切换选择区时的显隐问题\r 5.  - 完成“打开框条介绍页面”的按钮\r     - 修复了由rpx的误差导致的问题(替换成vw)\r     - 改进了\"菜单目前标志位\"的样式\r     - 改进了整体的字体表现\r     - 新建了\"介绍页面\"",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "simple-crop": "^4.0.14"
+  }
+}
