@@ -3,8 +3,9 @@
   </l-image-clipper> -->
   <simple-crop wx:if="{{simple_crop_show}}" size="{{canvas_size}}" src="{{imageUrl}}" cropSizePercent="{{0.75}}" borderColor="#fff" bindcropClose="close_crop" bindcropCrop="crop_complete"></simple-crop>
   <canvas type="2d" id="OffscreenCanvas" style="width:0px;height:0px;"></canvas>
-  <canvas type="2d" id="three" style="width:750rpx;height:{{canvas_size.height}}px;position:absolute;z-index:100"></canvas>
-  <camera device-position="front" flash="off" resolution="low" frame-size="medium" binderror="error" style="width:750rpx;height:{{canvas_size.height}}px;"></camera>
+  <canvas type="2d" id="three" style="width:750rpx;height:{{canvas_size.height}}px;position:absolute;z-index:101"></canvas>
+  <image src="{{croped_image}}" style="width:750rpx;height:{{canvas_size.height}}px;position:absolute;z-index:100" wx:if="{{mode == 'pic'}}"></image>
+  <camera device-position="back" flash="off" resolution="low" frame-size="medium" binderror="error" style="width:750rpx;height:{{canvas_size.height}}px;"></camera>
   <!-- 面板区总高度380rpx，其余为显示控制区 -->
   <!-- 面板区 -->
   <view class="pannel">
@@ -89,7 +90,7 @@
         <view class="pic_icon icon"></view>
         <text>选图</text>
       </view>
-      <view class="save menu_item">
+      <view class="save menu_item" bindtap="test">
         <view class="save_icon icon"></view>
         <text>画框</text>
       </view>

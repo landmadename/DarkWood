@@ -1,7 +1,8 @@
-var wasm = require("../../utils/wasm");
 var cv;
+var wasm = require("../../utils/wasm");
 var detector = require("../../utils/detector");
-var image = "hi";
+var painter = require("../../utils/painter")
+var tools = require("../../utils/tools")
 var cvs3, ctx3;
 
 var listener;
@@ -9,18 +10,23 @@ var listener;
 Page({
   data: {
     current_choose_panel: 0,
-    mode: 'pic',
+    mode: 'AR',
     processed: true,
 
     canvas_size: {
       width: 200,
       height: 200
     },
+    camera_size: {
+      width: 480,
+      height: 640
+    },
     canvasHeight: 600,
     frame_size: 80,
     cardboard_size: 80,
 
     imageUrl: "",
+    croped_image: "",
     simple_crop_show: false,
   },
 
@@ -47,29 +53,36 @@ Page({
   },
 
   to_AR: function() {
-    console.log("hi")
     var that = this;
+    var corners = [];
     var mat;
-    // var tmp = new cv.Mat();
     var i = 1;
-    // var video_scale = cvs3.width/480
-    // var video_size = new cv.Size(cvs3.width, parseInt(640*video_scale+1))
+    var video_scale, Xoffset, Yoffset;
+    var camera_size = {}
     var camera_ctx = wx.createCameraContext();
-    console.log(camera_ctx)
     listener = camera_ctx.onCameraFrame((frame) =>{
-      if (i++%10 == 0) {
+      // if (i++%that.data.frame_size == 0) {
+      if (i++%15 == 0) {
+        camera_size = {width: frame.width, height: frame.height}
+        if (wx.getSystemInfoSync().platform == "devtools") {
+          video_scale = that.data.canvas_size.height/camera_size.height
+          Xoffset = (that.data.canvas_size.width-video_scale*camera_size.width)/2
+          Yoffset = 0
+        } else {
+          video_scale = that.data.canvas_size.width/camera_size.width
+          Yoffset = (that.data.canvas_size.height-video_scale*camera_size.height)/2
+          Xoffset = 0
+        }  
+  
         mat = that.toMat(frame)
-        mat = detector.detect(mat)
-        // cv.resize(mat, tmp, video_size, 0, 0, cv.INTER_AREA)
-        cv.imshow(cvs3, mat, ctx3)
+        corners = detector.detect(mat)
+        quadrangle = detector.get_max_quadrangle(corners)
+        q_to_show = JSON.parse(JSON.stringify(quadrangle))
+        painter.scale_points(q_to_show, video_scale, Xoffset, Yoffset)
+        painter.draw_points(q_to_show, cvs3, ctx3)
+        // cv.imshow(cvs3, mat, ctx3)
         mat.delete()
-        // var mat = detector.toMat(frame);
-        // var coords = detector.detect(mat);
-        // cv.imshow(mat);
-        // detector.draw(coords);
-        // console.log(tmp)
       }
-      // console.log(i)
       if (i == 65000) {
         i=0
       }
@@ -82,7 +95,9 @@ Page({
   },
 
   to_pic: function() {
-    listener.stop()
+    if (listener != undefined) {
+      listener.stop()
+    }
     var that = this
     wx.chooseImage({
       count: 1,
@@ -107,12 +122,19 @@ Page({
   },
 
   crop_complete: function(e) {
-    console.log(e.detail.resultSrc)
-    cv.imread(e.detail.resultSrc, function(mat) {
-      cv.imshow(cvs3, mat, ctx3)
-    })
     this.setData({
-      simple_crop_show: false,
+      croped_image: e.detail.resultSrc,
+      simple_crop_show: false
+    })
+    cv.imread(e.detail.resultSrc, function(mat) {
+      corners = detector.detect(mat)
+      quadrangle = detector.get_max_quadrangle(corners)
+      q_to_show = JSON.parse(JSON.stringify(quadrangle))
+      const dpr = wx.getSystemInfoSync().pixelRatio
+      painter.scale_points(q_to_show, 1/dpr, 0, 0)
+      painter.draw_points(q_to_show, cvs3, ctx3)
+      // cv.imshow(cvs3, mat, ctx3)
+      mat.delete()
     })
   },
 
@@ -156,6 +178,7 @@ Page({
         canvas.height = that.data.canvas_size.height * dpr
         ctx.scale(dpr, dpr)
 
+        console.log(canvas)
         cvs3 = canvas
         ctx3 = ctx
       })
