@@ -3,15 +3,28 @@ var wasm = require("../../utils/wasm");
 var detector = require("../../utils/detector");
 var painter = require("../../utils/painter")
 var tools = require("../../utils/tools")
+var frame_painter = require("../../utils/frame_painter");
+
 var cvs3, ctx3;
+var cvs2, ctx2;
 
 var listener;
+
+var q_to_show;
+var frame_size=40, cardboard_size=30;
+var frame_id=4, card_id=6;
+
+const dpr = wx.getSystemInfoSync().pixelRatio
 
 Page({
   data: {
     current_choose_panel: 0,
     mode: 'AR',
     processed: true,
+    frames: {},
+    cards: {},
+    current_frame_id: 4, 
+    current_card_id: 6,
 
     canvas_size: {
       width: 200,
@@ -22,8 +35,6 @@ Page({
       height: 640
     },
     canvasHeight: 600,
-    frame_size: 80,
-    cardboard_size: 80,
 
     imageUrl: "",
     croped_image: "",
@@ -60,9 +71,9 @@ Page({
     var video_scale, Xoffset, Yoffset;
     var camera_size = {}
     var camera_ctx = wx.createCameraContext();
+    ctx2.clearRect(0,0,1000,1000)
     listener = camera_ctx.onCameraFrame((frame) =>{
-      // if (i++%that.data.frame_size == 0) {
-      if (i++%15 == 0) {
+      if (i++%6 == 0) {
         camera_size = {width: frame.width, height: frame.height}
         if (wx.getSystemInfoSync().platform == "devtools") {
           video_scale = that.data.canvas_size.height/camera_size.height
@@ -73,13 +84,14 @@ Page({
           Yoffset = (that.data.canvas_size.height-video_scale*camera_size.height)/2
           Xoffset = 0
         }  
-  
+        console.log(Xoffset,Yoffset)
         mat = that.toMat(frame)
-        corners = detector.detect(mat)
+        corners = detector.detect(mat, Yoffset)
         quadrangle = detector.get_max_quadrangle(corners)
         q_to_show = JSON.parse(JSON.stringify(quadrangle))
         painter.scale_points(q_to_show, video_scale, Xoffset, Yoffset)
-        painter.draw_points(q_to_show, cvs3, ctx3)
+        // painter.draw_points(q_to_show, cvs3, ctx3)
+        that.draw()
         // cv.imshow(cvs3, mat, ctx3)
         mat.delete()
       }
@@ -122,6 +134,7 @@ Page({
   },
 
   crop_complete: function(e) {
+    var that = this
     this.setData({
       croped_image: e.detail.resultSrc,
       simple_crop_show: false
@@ -130,9 +143,9 @@ Page({
       corners = detector.detect(mat)
       quadrangle = detector.get_max_quadrangle(corners)
       q_to_show = JSON.parse(JSON.stringify(quadrangle))
-      const dpr = wx.getSystemInfoSync().pixelRatio
       painter.scale_points(q_to_show, 1/dpr, 0, 0)
-      painter.draw_points(q_to_show, cvs3, ctx3)
+      // painter.draw_points(q_to_show, cvs3, ctx3)
+      that.draw()
       // cv.imshow(cvs3, mat, ctx3)
       mat.delete()
     })
@@ -140,14 +153,11 @@ Page({
 
   slider_change: function(e) {
     if (this.data.current_choose_panel == 0) {
-      this.setData({
-        frame_size: e.detail.value
-      })
+      frame_size = e.detail.value
     } else {
-      this.setData({
-        cardboard_size: e.detail.value
-      })
+      cardboard_size = e.detail.value
     }
+    this.draw()
   },
 
   tap_intro_button: function() {
@@ -164,7 +174,42 @@ Page({
     })
   },
 
-  load_ctx: function(id) {
+  tap_to_change_frame: function(e) {
+    frame_id = parseInt(e.currentTarget.dataset.frame_id)
+    this.setData({
+      current_frame_id: frame_id
+    })
+    this.set_patterns()
+  },
+
+  tap_to_change_card: function(e) {
+    card_id = parseInt(e.currentTarget.dataset.card_id)
+    this.setData({
+      current_card_id: card_id
+    })
+    this.set_patterns()
+  },
+
+  set_patterns: function () {
+    frame_painter.set_patterns({
+      "frame": {
+        "top":    {"path":this.data.frames[frame_id]["top"]},
+        "right":  {"path":this.data.frames[frame_id]["top"]},
+        "bottom": {"path":this.data.frames[frame_id]["bottom"]},
+        "left":   {"path":this.data.frames[frame_id]["bottom"]}  
+      },
+      "card": {
+        "top":    {"path":this.data.cards[card_id]["img"]},
+        "right":  {"path":this.data.cards[card_id]["img"]},
+        "bottom": {"path":this.data.cards[card_id]["img"]},
+        "left":   {"path":this.data.cards[card_id]["img"]}  
+      }
+    },
+    this.draw
+    )
+  },
+
+  load_ctx: function(id, setData) {
     var that = this
     const query = wx.createSelectorQuery()
     query.select(id)
@@ -173,21 +218,28 @@ Page({
         const canvas = res[0].node
         const ctx = canvas.getContext('2d')
   
-        const dpr = wx.getSystemInfoSync().pixelRatio
         canvas.width = that.data.canvas_size.width * dpr
         canvas.height = that.data.canvas_size.height * dpr
         ctx.scale(dpr, dpr)
 
-        console.log(canvas)
-        cvs3 = canvas
-        ctx3 = ctx
+        setData(canvas, ctx)
       })
+  },
+
+  init_painter: function (cvs2, ctx2) {
+    frame_painter.init(cvs2, ctx2)
+  },
+
+  draw: function () {
+    frame_painter.draw(q_to_show, frame_size, cardboard_size)
   },
 
   /**
    * 生命周期函数--监听页面加载
    */
   onLoad: function (options) {
+    tools.load_frames("http://47.99.244.218:8090", this)
+    tools.load_cards("http://47.99.244.218:8090", this)
     this.getwasm()
     // 设置canvas高度
     wx.getSystemInfo({
@@ -207,7 +259,17 @@ Page({
    * 生命周期函数--监听页面初次渲染完成
    */
   onReady: function () {
-    this.load_ctx("#three")
+    var that = this
+    this.load_ctx("#three", (cvs, ctx)=>{
+      cvs3 = cvs
+      ctx3 = ctx
+    })
+    this.load_ctx("#two", (cvs, ctx)=>{
+      cvs2 = cvs
+      ctx2 = ctx
+      that.init_painter(cvs2, ctx2)
+      that.set_patterns()
+    })
     // tools.draw_demo("#three");
   },
 

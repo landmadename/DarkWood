@@ -50,13 +50,16 @@ function draw_lines(mat, lines) {
   }
 }
 
-function draw_points(mat, points) {
+function draw_points(mat, points, Yoffset) {
+  console.log(Yoffset,mat.rows-Yoffset)
   for (let i = 0; i < points.length; i++) {
-    cv.circle(mat, points[i], 20, [255, 0, 0, 255], -1)
+    if (points[i].y>(Yoffset) && points[i].y<(mat.rows-Yoffset)) {
+      cv.circle(mat, points[i], 20, [255, 0, 0, 255], -1)
+    }
   }
 }
 
-function draw_mask(mat, mask) {
+function draw_mask(mat, mask, Yoffset) {
   var lines_mat = new cv.Mat()
   var points
   // var lines = []
@@ -64,11 +67,11 @@ function draw_mask(mat, mask) {
   // draw_lines(mat, lines_mat)
   lines = lineTools.getLinesFromData32F(lines_mat.data32F)
   points = lineTools.getAllIntersections(lines)
-  draw_points(mask, points)
+  draw_points(mask, points, Yoffset)
   lines_mat.delete()
 }
 
-function Harris(mat, mask) {
+function Harris(mat, mask, Yoffset) {
   var corners_mat = new cv.Mat()
   cv.goodFeaturesToTrack(mat, corners_mat, 20, 0.06, 200, mask, 3, true)
 
@@ -79,17 +82,22 @@ function Harris(mat, mask) {
     corners.push(point)
   }
 
-  draw_points(mat, corners)
+  draw_points(mat, corners, Yoffset)
   return corners
 }
 
-function detect(mat) {
+function detect(mat, Yoffset) {
+  if (Yoffset == undefined) {
+    Yoffset = 0
+  } else {
+    Yoffset = -Yoffset
+  }
   var mask = cv.Mat.zeros(mat.rows, mat.cols, cv.CV_8UC1);
   canny(mat, 5)
   contours(mat)
   approxPoly(mat, 20)
-  draw_mask(mat, mask)
-  var corners = Harris(mat, mask)
+  draw_mask(mat, mask, Yoffset)
+  var corners = Harris(mat, mask, Yoffset)
   mask.delete()
   return corners
 }

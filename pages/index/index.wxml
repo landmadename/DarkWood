@@ -1,8 +1,7 @@
 <view class="body">
-  <!-- <l-image-clipper show="{{show}}" image-url="{{imageUrl}}"bindlinclip="linclip" width="600">
-  </l-image-clipper> -->
   <simple-crop wx:if="{{simple_crop_show}}" size="{{canvas_size}}" src="{{imageUrl}}" cropSizePercent="{{0.75}}" borderColor="#fff" bindcropClose="close_crop" bindcropCrop="crop_complete"></simple-crop>
   <canvas type="2d" id="OffscreenCanvas" style="width:0px;height:0px;"></canvas>
+  <canvas type="2d" id="two" style="width:750rpx;height:{{canvas_size.height}}px;position:absolute;z-index:102"></canvas>
   <canvas type="2d" id="three" style="width:750rpx;height:{{canvas_size.height}}px;position:absolute;z-index:101"></canvas>
   <image src="{{croped_image}}" style="width:750rpx;height:{{canvas_size.height}}px;position:absolute;z-index:100" wx:if="{{mode == 'pic'}}"></image>
   <camera device-position="back" flash="off" resolution="low" frame-size="medium" binderror="error" style="width:750rpx;height:{{canvas_size.height}}px;"></camera>
@@ -13,8 +12,8 @@
       <!-- 调整滑块 -->
       <view class="slider_box">
         <view class="sliders_container">
-          <slider bindchanging="slider_change" min="0" max="200" value="80" activeColor="#ffe75e" hidden="{{current_choose_panel!=0}}"></slider>
-          <slider bindchanging="slider_change" min="0" max="200" value="80" activeColor="#ffe75e" hidden="{{current_choose_panel!=1}}"></slider>
+          <slider bindchanging="slider_change" min="0" max="80" value="40" activeColor="#ffe75e" hidden="{{current_choose_panel!=0}}"></slider>
+          <slider bindchanging="slider_change" min="0" max="80" value="30" activeColor="#ffe75e" hidden="{{current_choose_panel!=1}}"></slider>
           <slider min="0" max="200" value="80" activeColor="#e9e9e9" disabled="true" hidden="{{current_choose_panel!=2}}"></slider>
         </view>
         <view class="slider_box_right"></view>
@@ -34,8 +33,8 @@
           <view class="qr_icon"></view>
         </view>
         <scroll-view scroll-x="true" class="frames_box" enable-flex="true">
-          <block wx:for="{{[1, 2, 3, 4, 5, 6, 7, 8, 9]}}" wx:key="*this">
-            <image class="choose_item" src="../../res/pics/frame.png"></image>
+          <block wx:for="{{frames}}" wx:key="*this">
+            <image class="choose_item" src="{{item.prev}}" data-frame_id="{{item.id}}" bindtap="tap_to_change_frame"></image>
           </block>
         </scroll-view>
       </view>
@@ -45,8 +44,8 @@
           <view class="qr_icon"></view>
         </view>
         <scroll-view scroll-x="true" class="frames_box" enable-flex="true">
-          <block wx:for="{{[1, 2, 3]}}" wx:key="*this">
-            <image class="choose_item" src="../../res/pics/frame.png"></image>
+          <block wx:for="{{cards}}" wx:key="*this">
+            <image class="choose_item" src="{{item.prev}}" data-card_id="{{item.id}}" bindtap="tap_to_change_card"></image>
           </block>
         </scroll-view>
       </view>
