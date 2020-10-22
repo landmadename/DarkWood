@@ -86,11 +86,10 @@ function Harris(mat, mask, Yoffset) {
   return corners
 }
 
-function detect(mat, Yoffset) {
-  if (Yoffset == undefined) {
-    Yoffset = 0
-  } else {
-    Yoffset = -Yoffset
+function detect(mat, offset) {
+  var Yoffset = 0
+  if (offset != undefined) {
+    var Yoffset = -offset.y
   }
   var mask = cv.Mat.zeros(mat.rows, mat.cols, cv.CV_8UC1);
   canny(mat, 5)

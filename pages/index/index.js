@@ -12,7 +12,7 @@ var listener;
 
 var q_to_show;
 var frame_size=40, cardboard_size=30;
-var frame_id=4, card_id=6;
+var frame_id=4, card_id=6, scene_id=-1;
 
 const dpr = wx.getSystemInfoSync().pixelRatio
 
@@ -23,8 +23,10 @@ Page({
     processed: true,
     frames: {},
     cards: {},
+    scenes: {},
     current_frame_id: 4, 
     current_card_id: 6,
+    current_scene_id: -1,
 
     canvas_size: {
       width: 200,
@@ -42,6 +44,7 @@ Page({
   },
 
   getwasm: function () {
+    var that = this
     wasm.init({
       url:"http://www.aiotforest.com/opencv.zip",
       type:"zip", //格式：wasm,zip
@@ -50,17 +53,10 @@ Page({
       success: function (Module) {
         cv=Module;
         detector.init(cv);
-        console.log(cv);
+        tools.set_cv(cv);
+        that.to_AR();
       }
     })
-  },
-
-  toMat: function (frame) {
-    return cv.matFromImageData({
-      data:new Uint8ClampedArray(frame.data),
-      width:frame.width,
-      height:frame.height
-    });
   },
 
   to_AR: function() {
@@ -68,35 +64,27 @@ Page({
     var corners = [];
     var mat;
     var i = 1;
-    var video_scale, Xoffset, Yoffset;
-    var camera_size = {}
+    var scale, offset={};
+    var number_of_frames_to_ignore = 6;
     var camera_ctx = wx.createCameraContext();
     ctx2.clearRect(0,0,1000,1000)
     listener = camera_ctx.onCameraFrame((frame) =>{
-      if (i++%6 == 0) {
-        camera_size = {width: frame.width, height: frame.height}
-        if (wx.getSystemInfoSync().platform == "devtools") {
-          video_scale = that.data.canvas_size.height/camera_size.height
-          Xoffset = (that.data.canvas_size.width-video_scale*camera_size.width)/2
-          Yoffset = 0
-        } else {
-          video_scale = that.data.canvas_size.width/camera_size.width
-          Yoffset = (that.data.canvas_size.height-video_scale*camera_size.height)/2
-          Xoffset = 0
-        }  
-        console.log(Xoffset,Yoffset)
-        mat = that.toMat(frame)
-        corners = detector.detect(mat, Yoffset)
+      if (i == 65000) {i=0}
+      if (i == 1) {
+        var camera_size = {width: frame.width, height: frame.height}
+        offset = tools.get_offset_from_canvas_to_camera(that.data.canvas_size, camera_size)
+        scale = tools.get_scale_from_canvas_to_camera(that.data.canvas_size, camera_size)
+      }
+      if (i++%number_of_frames_to_ignore == 0) {
+        mat = tools.toMat(frame)
+        corners = detector.detect(mat, offset)
         quadrangle = detector.get_max_quadrangle(corners)
         q_to_show = JSON.parse(JSON.stringify(quadrangle))
-        painter.scale_points(q_to_show, video_scale, Xoffset, Yoffset)
+        painter.scale_points(q_to_show, scale, offset.x, offset.y)
         // painter.draw_points(q_to_show, cvs3, ctx3)
         that.draw()
         // cv.imshow(cvs3, mat, ctx3)
         mat.delete()
-      }
-      if (i == 65000) {
-        i=0
       }
     })
     listener.start()
@@ -190,6 +178,18 @@ Page({
     this.set_patterns()
   },
 
+  tap_to_change_scene: function(e) {
+    if (scene_id != parseInt(e.currentTarget.dataset.scene_id)) {
+      scene_id = parseInt(e.currentTarget.dataset.scene_id)
+    } else {
+      scene_id = -1
+    }
+    this.setData({
+      current_scene_id: scene_id
+    })
+    
+  },
+
   set_patterns: function () {
     frame_painter.set_patterns({
       "frame": {
@@ -240,6 +240,7 @@ Page({
   onLoad: function (options) {
     tools.load_frames("http://47.99.244.218:8090", this)
     tools.load_cards("http://47.99.244.218:8090", this)
+    tools.load_scenes("http://47.99.244.218:8090", this)
     this.getwasm()
     // 设置canvas高度
     wx.getSystemInfo({

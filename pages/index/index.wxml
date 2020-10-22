@@ -7,57 +7,61 @@
   <camera device-position="back" flash="off" resolution="low" frame-size="medium" binderror="error" style="width:750rpx;height:{{canvas_size.height}}px;"></camera>
   <!-- 面板区总高度380rpx，其余为显示控制区 -->
   <!-- 面板区 -->
-  <view class="pannel">
-    <view class="slider_and_intro">
+  <view class="pannel_area">
+    <!-- 滑块和按钮 -->
+    <view class="slider_and_intro_button">
       <!-- 调整滑块 -->
-      <view class="slider_box">
+      <view class="slider">
         <view class="sliders_container">
           <slider bindchanging="slider_change" min="0" max="80" value="40" activeColor="#ffe75e" hidden="{{current_choose_panel!=0}}"></slider>
           <slider bindchanging="slider_change" min="0" max="80" value="30" activeColor="#ffe75e" hidden="{{current_choose_panel!=1}}"></slider>
           <slider min="0" max="200" value="80" activeColor="#e9e9e9" disabled="true" hidden="{{current_choose_panel!=2}}"></slider>
         </view>
-        <view class="slider_box_right"></view>
       </view>
       <!-- 介绍页面按钮 -->
       <view class="intro_button" bindtap="tap_intro_button">
-        <view class="intro_panel">
-          <view class="intro_words">介绍</view>
+        <view class="intro_box">
+          <view>介绍</view>
         </view>
       </view>
     </view>
+
     <!-- 选择区 -->
-    <view class="choose_box">
+    <view class="choose_area">
       <!-- 框条选择面板 -->
-      <view class="choose_panel_frames" wx:if="{{current_choose_panel==0}}">
-        <view class="qr_item">
+      <view class="choose_panel" wx:if="{{current_choose_panel==0}}">
+        <view class="qr_button">
           <view class="qr_icon"></view>
         </view>
-        <scroll-view scroll-x="true" class="frames_box" enable-flex="true">
-          <block wx:for="{{frames}}" wx:key="*this">
-            <image class="choose_item" src="{{item.prev}}" data-frame_id="{{item.id}}" bindtap="tap_to_change_frame"></image>
-          </block>
+        <scroll-view scroll-x="true" class="choices_container" enable-flex="true">
+          <view wx:for="{{frames}}" wx:key="*this" class="choice_box">
+            <view class="chosen_mark" data-choosen="{{current_frame_id == item.id}}"></view>
+            <image class="choice_img" src="{{item.prev}}" data-frame_id="{{item.id}}" bindtap="tap_to_change_frame"></image>
+          </view>
         </scroll-view>
       </view>
       <!-- 卡纸选择面板 -->
-      <view class="choose_panel_frames" wx:if="{{current_choose_panel==1}}">
-        <view class="qr_item">
+      <view class="choose_panel" wx:if="{{current_choose_panel==1}}">
+        <view class="qr_button">
           <view class="qr_icon"></view>
         </view>
-        <scroll-view scroll-x="true" class="frames_box" enable-flex="true">
-          <block wx:for="{{cards}}" wx:key="*this">
-            <image class="choose_item" src="{{item.prev}}" data-card_id="{{item.id}}" bindtap="tap_to_change_card"></image>
-          </block>
+        <scroll-view scroll-x="true" class="choices_container" enable-flex="true">
+          <view wx:for="{{cards}}" wx:key="*this" class="choice_box">
+            <view class="chosen_mark" data-choosen="{{current_card_id == item.id}}"></view>
+            <image class="choice_img" src="{{item.prev}}" data-card_id="{{item.id}}" bindtap="tap_to_change_card"></image>
+          </view>
         </scroll-view>
       </view>
       <!-- 场景选择面板 -->
-      <view class="choose_panel_frames" wx:if="{{current_choose_panel==2}}">
-        <view class="qr_item">
+      <view class="choose_panel" wx:if="{{current_choose_panel==2}}">
+        <view class="qr_button">
           <view class="qr_icon"></view>
         </view>
-        <scroll-view scroll-x="true" class="frames_box" enable-flex="true">
-          <block wx:for="{{[1, 2]}}" wx:key="*this">
-            <image class="choose_item" src="../../res/pics/frame.png"></image>
-          </block>
+        <scroll-view scroll-x="true" class="choices_container" enable-flex="true">
+          <view wx:for="{{scenes}}" wx:key="*this" class="choice_box">
+            <view class="chosen_mark" data-choosen="{{current_scene_id == item.id}}"></view>
+            <image class="choice_img" src="{{item.prev}}" data-scene_id="{{item.id}}" bindtap="tap_to_change_scene"></image>
+          </view>
         </scroll-view>
       </view>
     </view>
@@ -68,7 +72,7 @@
       <view class="menu_selected_mark_center"></view>
       <view class="menu_selected_mark_right"></view>
     </view>
-    <view class="menu_box">
+    <view class="menu_area">
       <view class="frame menu_item" bindtap="tap_to_change_choose_panel" data-panel_id="0">
         <view class="frame_icon icon"></view>
         <text>画框</text>
@@ -91,7 +95,7 @@
       </view>
       <view class="save menu_item" bindtap="test">
         <view class="save_icon icon"></view>
-        <text>画框</text>
+        <text>保存</text>
       </view>
     </view>
   </view>
