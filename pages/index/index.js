@@ -4,6 +4,7 @@ var detector = require("../../utils/detector");
 var painter = require("../../utils/painter")
 var tools = require("../../utils/tools")
 var frame_painter = require("../../utils/frame_painter");
+var scene_painter = require("../../utils/scene_painter");
 
 var cvs3, ctx3;
 var cvs2, ctx2;
@@ -67,6 +68,7 @@ Page({
     var scale, offset={};
     var number_of_frames_to_ignore = 6;
     var camera_ctx = wx.createCameraContext();
+    scene_painter.clear_scene()
     ctx2.clearRect(0,0,1000,1000)
     listener = camera_ctx.onCameraFrame((frame) =>{
       if (i == 65000) {i=0}
@@ -131,7 +133,8 @@ Page({
       corners = detector.detect(mat)
       quadrangle = detector.get_max_quadrangle(corners)
       q_to_show = JSON.parse(JSON.stringify(quadrangle))
-      painter.scale_points(q_to_show, 1/dpr, 0, 0)
+      painter.scale_points(q_to_show, 1/dpr, {x:0, y:0})
+      console.log(quadrangle)
       // painter.draw_points(q_to_show, cvs3, ctx3)
       that.draw()
       // cv.imshow(cvs3, mat, ctx3)
@@ -179,15 +182,19 @@ Page({
   },
 
   tap_to_change_scene: function(e) {
-    if (scene_id != parseInt(e.currentTarget.dataset.scene_id)) {
-      scene_id = parseInt(e.currentTarget.dataset.scene_id)
-    } else {
-      scene_id = -1
+    if (this.data.mode == "pic") {
+      var new_scene_id = parseInt(e.currentTarget.dataset.scene_id)
+      if (scene_id != new_scene_id) {
+        scene_id = new_scene_id
+        scene_painter.set_scene(this.data.scenes[scene_id]["img"], q_to_show)
+      } else {
+        scene_id = -1
+        scene_painter.clear_scene()
+      }
+      this.setData({
+        current_scene_id: scene_id
+      })
     }
-    this.setData({
-      current_scene_id: scene_id
-    })
-    
   },
 
   set_patterns: function () {
@@ -226,10 +233,6 @@ Page({
       })
   },
 
-  init_painter: function (cvs2, ctx2) {
-    frame_painter.init(cvs2, ctx2)
-  },
-
   draw: function () {
     frame_painter.draw(q_to_show, frame_size, cardboard_size)
   },
@@ -264,11 +267,12 @@ Page({
     this.load_ctx("#three", (cvs, ctx)=>{
       cvs3 = cvs
       ctx3 = ctx
+      scene_painter.init(cvs3, ctx3)
     })
     this.load_ctx("#two", (cvs, ctx)=>{
       cvs2 = cvs
       ctx2 = ctx
-      that.init_painter(cvs2, ctx2)
+      frame_painter.init(cvs2, ctx2)
       that.set_patterns()
     })
     // tools.draw_demo("#three");

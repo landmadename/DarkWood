@@ -51,7 +51,6 @@ function draw_lines(mat, lines) {
 }
 
 function draw_points(mat, points, Yoffset) {
-  console.log(Yoffset,mat.rows-Yoffset)
   for (let i = 0; i < points.length; i++) {
     if (points[i].y>(Yoffset) && points[i].y<(mat.rows-Yoffset)) {
       cv.circle(mat, points[i], 20, [255, 0, 0, 255], -1)
