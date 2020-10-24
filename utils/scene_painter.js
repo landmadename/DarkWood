@@ -4,7 +4,6 @@ const dpr = wx.getSystemInfoSync().pixelRatio
 function init(canvas_input,context_input) {
   cvs = canvas_input
   ctx = context_input
-  console.log(cvs.height)
 }
 
 function set_scene(src, quadrangle) {

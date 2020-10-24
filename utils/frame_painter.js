@@ -1,13 +1,6 @@
 var Vector = require('vector2js');
 
 var cvs,ctx;
-var dotscopy;
-var idots;
-var count = 30;
-var len = 10;
-var card_width = 30;
-var frame_width = 20;
-var old_patterns = "";
 var patterns = {};
 
 function init(canvas_input,context_input) {
@@ -19,23 +12,6 @@ async function set_patterns(patterns_input, callback) {
   patterns = patterns_input
   await load_imgs(patterns)
   callback()
-}
-
-function draw_box(dots) {
-  var items = ["top", "right", "bottom", "left"]
-  // var items = ["bottom"]
-  items.forEach(i =>{
-    ctx.save();
-    ctx.beginPath();
-    ctx.moveTo(dots[i][0].x, dots[i][0].y);
-    ctx.lineTo(dots[i][1].x, dots[i][1].y);
-    ctx.lineTo(dots[i][2].x, dots[i][2].y);
-    ctx.lineTo(dots[i][3].x, dots[i][3].y);
-    ctx.lineTo(dots[i][0].x, dots[i][0].y);
-    ctx.stroke();
-    ctx.closePath();
-    // ctx.clip();
-  })
 }
 
 function load_imgs(patterns) {
@@ -60,7 +36,6 @@ function draw(dots, frame_width, card_width) {
   var card_box = find_outer_box(card_width, dots)
   var frame_box = find_outer_box(frame_width, [card_box.now["top"][3], card_box.now["right"][3], card_box.now["bottom"][3], card_box.now["left"][3]])
 
-  ctx.clearRect(0, 0, cvs.width, cvs.height);
   render(card_box.now, card_box.raw, "card", card_width)
   render(frame_box.now, frame_box.raw, "frame", frame_width)
 }

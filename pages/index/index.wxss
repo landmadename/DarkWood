@@ -2,6 +2,11 @@ page{
   background-color: #381924;
 }
 
+movable-view{
+  width: 60px;
+  height: 60px;
+}
+
 slider{
   margin: 0 auto;
   width: 76vw;

@@ -166,7 +166,6 @@ function get_max_quadrangle(points) {
       areas.push(get_area(cbs[i]))
     }
     areas.sort((a,b)=>b.area-a.area)
-    // console.log(areas)
     quadrangle = areas[0].points
     return quadrangle
   }

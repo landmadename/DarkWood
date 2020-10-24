@@ -1,10 +1,17 @@
 <view class="body">
   <simple-crop wx:if="{{simple_crop_show}}" size="{{canvas_size}}" src="{{imageUrl}}" cropSizePercent="{{0.75}}" borderColor="#fff" bindcropClose="close_crop" bindcropCrop="crop_complete"></simple-crop>
+  <movable-area style="width:750rpx;height:{{canvas_size.height}}px;position:absolute;z-index:106">
+    <block wx:for="{{quadrangle}}" wx:key="*this" class="choice_box">
+      <movable-view x="{{item.x-30}}" y="{{item.y-30}}" data-index="{{index}}" direction="all" inertia="false" disabled="{{mode=='AR'}}" bindchange="move"></movable-view>
+    </block>
+  </movable-area>
   <canvas type="2d" id="OffscreenCanvas" style="width:0px;height:0px;"></canvas>
   <canvas type="2d" id="two" style="width:750rpx;height:{{canvas_size.height}}px;position:absolute;z-index:102"></canvas>
   <canvas type="2d" id="three" style="width:750rpx;height:{{canvas_size.height}}px;position:absolute;z-index:101"></canvas>
   <image src="{{croped_image}}" style="width:750rpx;height:{{canvas_size.height}}px;position:absolute;z-index:100" wx:if="{{mode == 'pic'}}"></image>
-  <camera device-position="back" flash="off" resolution="low" frame-size="medium" binderror="error" style="width:750rpx;height:{{canvas_size.height}}px;"></camera>
+  <camera device-position="back" flash="off" resolution="low" frame-size="medium" binderror="error" style="width:750rpx;height:{{canvas_size.height}}px;position:absolute"></camera>
+  <canvas type="2d" id="to_save" style="width:750rpx;height:{{canvas_size.height}}px;"></canvas>
+
   <!-- 面板区总高度380rpx，其余为显示控制区 -->
   <!-- 面板区 -->
   <view class="pannel_area">
@@ -93,7 +100,7 @@
         <view class="pic_icon icon"></view>
         <text>选图</text>
       </view>
-      <view class="save menu_item" bindtap="test">
+      <view class="save menu_item" bindtap="save">
         <view class="save_icon icon"></view>
         <text>保存</text>
       </view>

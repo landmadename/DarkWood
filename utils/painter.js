@@ -1,7 +1,7 @@
-function scale_points(points, scale, offset) {
-for (let i = 0; i < points.length; i++) {
-    points[i].x = points[i].x * scale + offset.x
-    points[i].y = points[i].y * scale + offset.y
+function scale_points(points, scale, Xoffset, Yoffset) { 
+  for (let i = 0; i < points.length; i++) { 
+    points[i].x = points[i].x * scale + Xoffset 
+    points[i].y = points[i].y * scale + Yoffset 
   }
   return points
 }

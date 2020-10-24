@@ -5,9 +5,11 @@ var painter = require("../../utils/painter")
 var tools = require("../../utils/tools")
 var frame_painter = require("../../utils/frame_painter");
 var scene_painter = require("../../utils/scene_painter");
+var save_painter = require("../../utils/save_painter");
 
 var cvs3, ctx3;
 var cvs2, ctx2;
+var cvs_save, ctx_save;
 
 var listener;
 
@@ -28,6 +30,7 @@ Page({
     current_frame_id: 4, 
     current_card_id: 6,
     current_scene_id: -1,
+    quadrangle:[],
 
     canvas_size: {
       width: 200,
@@ -131,10 +134,21 @@ Page({
     })
     cv.imread(e.detail.resultSrc, function(mat) {
       corners = detector.detect(mat)
-      quadrangle = detector.get_max_quadrangle(corners)
-      q_to_show = JSON.parse(JSON.stringify(quadrangle))
-      painter.scale_points(q_to_show, 1/dpr, {x:0, y:0})
-      console.log(quadrangle)
+      if (corners.length < 4) {
+        q_to_show = [
+          {x: 100, y:100},
+          {x: 100, y:that.data.canvas_size.height-100},
+          {x: that.data.canvas_size.width-100, y:that.data.canvas_size.height-100},
+          {x: that.data.canvas_size.width-100, y:100},
+        ]
+      } else {
+        quadrangle = detector.get_max_quadrangle(corners)
+        q_to_show = JSON.parse(JSON.stringify(quadrangle))
+        painter.scale_points(q_to_show, 1/dpr, 0, 0)
+      }
+      that.setData({
+        quadrangle: q_to_show
+      })
       // painter.draw_points(q_to_show, cvs3, ctx3)
       that.draw()
       // cv.imshow(cvs3, mat, ctx3)
@@ -155,6 +169,15 @@ Page({
     wx.navigateTo({
       url: '../intro/intro',
     })
+  },
+
+  move: function(e) {
+    if (e.detail.source == "touch") {
+      var index = e.currentTarget.dataset.index
+      q_to_show[index].x = e.detail.x+30
+      q_to_show[index].y = e.detail.y+30
+      this.draw()
+    }
   },
 
   // 通过点击设置当前的panel id
@@ -197,6 +220,18 @@ Page({
     }
   },
 
+  save: async function () {
+    if (this.data.mode == "pic") {
+      save_painter.set_quadrangle(q_to_show)
+      if (scene_id != -1) {
+        await save_painter.draw_scene(cvs3, ctx3, this.data.scenes[scene_id]["img"])
+      }
+      await save_painter.draw_croped_image(this.data.croped_image)
+      await save_painter.draw_frame(cvs2, ctx2, frame_size, cardboard_size)
+      save_painter.save()
+    }
+  },
+
   set_patterns: function () {
     frame_painter.set_patterns({
       "frame": {
@@ -234,6 +269,7 @@ Page({
   },
 
   draw: function () {
+    ctx2.clearRect(0, 0, 1000, 1000);
     frame_painter.draw(q_to_show, frame_size, cardboard_size)
   },
 
@@ -264,6 +300,11 @@ Page({
    */
   onReady: function () {
     var that = this
+    this.load_ctx("#to_save", (cvs, ctx)=>{
+      cvs_save = cvs
+      ctx_save = ctx
+      save_painter.init(cvs_save, ctx_save)
+    })
     this.load_ctx("#three", (cvs, ctx)=>{
       cvs3 = cvs
       ctx3 = ctx
