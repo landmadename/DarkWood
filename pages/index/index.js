@@ -204,6 +204,27 @@ Page({
     this.set_patterns()
   },
 
+  scan_code: function () {
+    var that = this
+    wx.scanCode({
+      success (res) {
+        var data = JSON.parse(res.result)
+        var type = Object.keys(data)[0]
+        var e = {}
+        if (type == "frames") {
+          e = {currentTarget: {dataset: {frame_id: data["frames"]}}}
+          that.tap_to_change_frame(e)
+        } else if (type == "cards") {
+          e = {currentTarget: {dataset: {card_id: data["card"]}}}
+          that.tap_to_change_frame(e)
+        } else if (type == "scenes") {
+          e = {currentTarget: {dataset: {scene_id: data["scene"]}}}
+          that.tap_to_change_frame(e)
+        }
+      }
+    })
+  },
+
   tap_to_change_scene: function(e) {
     if (this.data.mode == "pic") {
       var new_scene_id = parseInt(e.currentTarget.dataset.scene_id)

@@ -37,7 +37,7 @@
     <view class="choose_area">
       <!-- 框条选择面板 -->
       <view class="choose_panel" wx:if="{{current_choose_panel==0}}">
-        <view class="qr_button">
+        <view class="qr_button" bindtap="scan_code">
           <view class="qr_icon"></view>
         </view>
         <scroll-view scroll-x="true" class="choices_container" enable-flex="true">
