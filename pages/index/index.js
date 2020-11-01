@@ -14,6 +14,7 @@ var cvs_save, ctx_save;
 var listener;
 
 var q_to_show;
+var hls;
 var frame_size=40, cardboard_size=30;
 var frame_id=4, card_id=6, scene_id=-1;
 
@@ -82,6 +83,7 @@ Page({
       }
       if (i++%number_of_frames_to_ignore == 0) {
         mat = tools.toMat(frame)
+        hls = detector.get_hls(mat)
         corners = detector.detect(mat, offset)
         quadrangle = detector.get_max_quadrangle(corners)
         q_to_show = JSON.parse(JSON.stringify(quadrangle))
@@ -133,14 +135,10 @@ Page({
       simple_crop_show: false
     })
     cv.imread(e.detail.resultSrc, function(mat) {
+      hls = detector.get_hls(mat)
       corners = detector.detect(mat)
       if (corners.length < 4) {
-        q_to_show = [
-          {x: 100, y:100},
-          {x: 100, y:that.data.canvas_size.height-100},
-          {x: that.data.canvas_size.width-100, y:that.data.canvas_size.height-100},
-          {x: that.data.canvas_size.width-100, y:100},
-        ]
+        q_to_show = that.get_default_quadrangle()
       } else {
         quadrangle = detector.get_max_quadrangle(corners)
         q_to_show = JSON.parse(JSON.stringify(quadrangle))
@@ -156,6 +154,15 @@ Page({
     })
   },
 
+  get_default_quadrangle: function () {
+    return [
+      {x: 100, y:100},
+      {x: 100, y:this.data.canvas_size.height-100},
+      {x: this.data.canvas_size.width-100, y:this.data.canvas_size.height-100},
+      {x: this.data.canvas_size.width-100, y:100},
+    ]
+  },
+
   slider_change: function(e) {
     if (this.data.current_choose_panel == 0) {
       frame_size = e.detail.value
@@ -166,9 +173,9 @@ Page({
   },
 
   tap_intro_button: function() {
-    wx.navigateTo({
-      url: '../intro/intro',
-    })
+    // wx.navigateTo({
+    //   url: '../intro/intro',
+    // })
   },
 
   move: function(e) {
@@ -248,7 +255,7 @@ Page({
         await save_painter.draw_scene(cvs3, ctx3, this.data.scenes[scene_id]["img"])
       }
       await save_painter.draw_croped_image(this.data.croped_image)
-      await save_painter.draw_frame(cvs2, ctx2, frame_size, cardboard_size)
+      await save_painter.draw_frame(cvs2, ctx2, frame_size, cardboard_size, hls)
       save_painter.save()
     }
   },
@@ -291,7 +298,7 @@ Page({
 
   draw: function () {
     ctx2.clearRect(0, 0, 1000, 1000);
-    frame_painter.draw(q_to_show, frame_size, cardboard_size)
+    frame_painter.draw(q_to_show, frame_size, cardboard_size, hls)
   },
 
   /**

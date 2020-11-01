@@ -32,12 +32,16 @@ function load_imgs(patterns) {
   })
 }
 
-function draw(dots, frame_width, card_width) {
+function draw(dots, frame_width, card_width, hls) {
   var card_box = find_outer_box(card_width, dots)
-  var frame_box = find_outer_box(frame_width, [card_box.now["top"][3], card_box.now["right"][3], card_box.now["bottom"][3], card_box.now["left"][3]])
+  var frame_box = find_outer_box(frame_width, get_outer_dots(card_box))
 
-  render(card_box.now, card_box.raw, "card", card_width)
-  render(frame_box.now, frame_box.raw, "frame", frame_width)
+  render(card_box, "card", card_width, hls)
+  render(frame_box, "frame", frame_width, hls)
+}
+
+function get_outer_dots(box) {
+  return [box.now["top"][3], box.now["right"][3], box.now["bottom"][3], box.now["left"][3]]
 }
 
 function find_outer_box(width, dots) {
@@ -101,7 +105,9 @@ function find_outer_box(width, dots) {
   }
 }
 
-function render(now_dots, raw_dots, type, pattern_height) {
+function render(box, type, pattern_height, hls) {
+  var now_dots = box.now
+  var raw_dots = box.raw
   for (const site in now_dots) {
     if (now_dots.hasOwnProperty(site)) {
       var dot1 = now_dots[site][0]
@@ -113,13 +119,15 @@ function render(now_dots, raw_dots, type, pattern_height) {
       var idot2 = raw_dots[site][1]
       var idot3 = raw_dots[site][2]
       var idot4 = raw_dots[site][3]
-      renderImage(idot3, dot3, idot2, dot2, idot4, dot4, idot1, type, site, pattern_height);
-      renderImage(idot1, dot1, idot2, dot2, idot4, dot4, idot1, type, site, pattern_height);
+      renderImage(idot3, dot3, idot2, dot2, idot4, dot4, idot1, type, site, pattern_height, hls);
+      renderImage(idot1, dot1, idot2, dot2, idot4, dot4, idot1, type, site, pattern_height, hls);
     }
   }
 }
 
-function renderImage(arg_1, _arg_1, arg_2, _arg_2, arg_3, _arg_3, vertex, type, site, pattern_height) {
+function renderImage(arg_1, _arg_1, arg_2, _arg_2, arg_3, _arg_3, vertex, type, site, pattern_height, hls) {
+  var saturation = hls[2]
+  var lightness = hls[1]
   var img = patterns[type][site]["img"]
   ctx.save();
   ctx.beginPath();
@@ -137,7 +145,14 @@ function renderImage(arg_1, _arg_1, arg_2, _arg_2, arg_3, _arg_3, vertex, type, 
   ctx.translate(-2*pattern_width, -60)
   for (let i = 0; i < cvs.width/pattern_width*1.3; i++) {
     ctx.translate(pattern_width, 0);
+    ctx.globalCompositeOperation = "source-over"
     ctx.drawImage(img, 0, 0, img.width, img.height,0 ,0 ,pattern_width , pattern_height)
+    ctx.globalCompositeOperation = "luminosity"
+    ctx.fillStyle = "hsl(0,100%,"+lightness/255*100+"%,10%)"
+    ctx.fillRect(0,0,1000,1000);
+    ctx.globalCompositeOperation = "saturation"
+    ctx.fillStyle = "hsl(0,"+saturation/255*100+"%,100%,10%)"
+    ctx.fillRect(0,0,1000,1000);
   }
   ctx.restore();
 }

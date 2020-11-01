@@ -8,7 +8,6 @@ function init(cv_input) {
   ksize = new cv.Size(5, 5)
   cnts = new cv.MatVector()
   hierarchy = new cv.Mat()
-  
 }
 
 function canny(mat, k) {
@@ -83,6 +82,15 @@ function Harris(mat, mask, Yoffset) {
 
   draw_points(mat, corners, Yoffset)
   return corners
+}
+
+function get_hls(mat) {
+  var hls = cv.Mat.zeros(mat.rows, mat.cols, cv.CV_8UC3)
+  cv.cvtColor(mat, hls, cv.COLOR_BGR2HLS, 0)
+  var hls_mean = cv.mean(hls)
+  console.log(cv.mean(hls))
+  hls.delete()
+  return hls_mean
 }
 
 function detect(mat, offset) {
@@ -171,8 +179,10 @@ function get_max_quadrangle(points) {
   }
 }
 
+
 module.exports = {
   init: init,
   detect: detect,
-  get_max_quadrangle: get_max_quadrangle
+  get_max_quadrangle: get_max_quadrangle,
+  get_hls: get_hls
 }
