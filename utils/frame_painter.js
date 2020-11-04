@@ -23,7 +23,6 @@ function load_imgs(patterns) {
         patterns[type][site]["img"].src = patterns[type][site]["path"]
         patterns[type][site]["img"].onload = function () {
           if (--cnt==0) {
-            console.log(patterns)
             resolve(1)
           }
         }  
@@ -33,11 +32,13 @@ function load_imgs(patterns) {
 }
 
 function draw(dots, frame_width, card_width, hls) {
-  var card_box = find_outer_box(card_width, dots)
-  var frame_box = find_outer_box(frame_width, get_outer_dots(card_box))
-
-  render(card_box, "card", card_width, hls)
-  render(frame_box, "frame", frame_width, hls)
+  if (dots != undefined && dots.length == 4) {
+    var card_box = find_outer_box(card_width, dots)
+    var frame_box = find_outer_box(frame_width, get_outer_dots(card_box))
+  
+    render(card_box, "card", card_width, hls)
+    render(frame_box, "frame", frame_width, hls)
+  }
 }
 
 function get_outer_dots(box) {
@@ -147,12 +148,12 @@ function renderImage(arg_1, _arg_1, arg_2, _arg_2, arg_3, _arg_3, vertex, type, 
     ctx.translate(pattern_width, 0);
     ctx.globalCompositeOperation = "source-over"
     ctx.drawImage(img, 0, 0, img.width, img.height,0 ,0 ,pattern_width , pattern_height)
-    ctx.globalCompositeOperation = "luminosity"
-    ctx.fillStyle = "hsl(0,100%,"+lightness/255*100+"%,10%)"
-    ctx.fillRect(0,0,1000,1000);
-    ctx.globalCompositeOperation = "saturation"
-    ctx.fillStyle = "hsl(0,"+saturation/255*100+"%,100%,10%)"
-    ctx.fillRect(0,0,1000,1000);
+    // ctx.globalCompositeOperation = "luminosity"
+    // ctx.fillStyle = "hsl(0,100%,"+lightness/255*100+"%,1%)"
+    // ctx.fillRect(0,0,1000,1000);
+    // ctx.globalCompositeOperation = "saturation"
+    // ctx.fillStyle = "hsl(0,"+saturation/255*100+"%,100%,1%)"
+    // ctx.fillRect(0,0,1000,1000);
   }
   ctx.restore();
 }

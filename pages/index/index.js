@@ -187,6 +187,36 @@ Page({
     }
   },
 
+  random_choose: function (type) {
+    var ids = Object.keys(this.data[type])
+    var randomElement = ids[Math.floor(Math.random() * ids.length)];
+    var e = {}
+    if (type == "frames") {
+      e = {currentTarget: {dataset: {frame_id: randomElement}}}
+      this.tap_to_change_frame(e)
+    } else if (type == "cards") {
+      e = {currentTarget: {dataset: {card_id: randomElement}}}
+      this.tap_to_change_card(e)
+    } else if (type == "scenes") {
+      if (scene_id != randomElement) {
+        e = {currentTarget: {dataset: {scene_id: randomElement}}}
+        this.tap_to_change_scene(e)
+      }
+    }
+  },
+
+  tap_random_choose: function (e) {
+    var type = e.currentTarget.dataset.type
+    if (type == "frames_and_cards") {
+      type = "frames"
+      this.random_choose(type)
+      type = "cards"
+      this.random_choose(type)
+    } else {
+      this.random_choose(type)
+    }
+  },
+
   // 通过点击设置当前的panel id
   tap_to_change_choose_panel: function(e) {
     var panel_id = parseInt(e.currentTarget.dataset.panel_id)
@@ -223,10 +253,10 @@ Page({
           that.tap_to_change_frame(e)
         } else if (type == "cards") {
           e = {currentTarget: {dataset: {card_id: data["card"]}}}
-          that.tap_to_change_frame(e)
+          that.tap_to_change_card(e)
         } else if (type == "scenes") {
           e = {currentTarget: {dataset: {scene_id: data["scene"]}}}
-          that.tap_to_change_frame(e)
+          that.tap_to_change_scene(e)
         }
       }
     })

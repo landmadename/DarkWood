@@ -88,7 +88,6 @@ function get_hls(mat) {
   var hls = cv.Mat.zeros(mat.rows, mat.cols, cv.CV_8UC3)
   cv.cvtColor(mat, hls, cv.COLOR_BGR2HLS, 0)
   var hls_mean = cv.mean(hls)
-  console.log(cv.mean(hls))
   hls.delete()
   return hls_mean
 }
