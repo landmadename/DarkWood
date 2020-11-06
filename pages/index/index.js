@@ -42,6 +42,7 @@ Page({
       height: 640
     },
     canvasHeight: 600,
+    transparent_scene_id: 15,
 
     imageUrl: "",
     croped_image: "",
@@ -281,7 +282,11 @@ Page({
   save: async function () {
     if (this.data.mode == "pic") {
       save_painter.set_quadrangle(q_to_show)
-      if (scene_id != -1) {
+      if (scene_id == this.data.transparent_scene_id) {
+        ctx_save.clearRect(0, 0, 1000, 1000)
+      } else if (scene_id == -1) {
+        await save_painter.draw_scene(cvs3, ctx3, this.data.croped_image)
+      } else {
         await save_painter.draw_scene(cvs3, ctx3, this.data.scenes[scene_id]["img"])
       }
       await save_painter.draw_croped_image(this.data.croped_image)
