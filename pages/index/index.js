@@ -1,4 +1,3 @@
-var cv;
 var wasm = require("../../utils/wasm");
 var detector = require("../../utils/detector");
 var tools = require("../../utils/tools")
@@ -7,11 +6,12 @@ var main_painter = require("../../utils/main_painter");
 var scene_painter = require("../../utils/scene_painter");
 var save_painter = require("../../utils/save_painter");
 
+var cv;
+var listener;
+
 var cvs_scene, ctx_scene;
 var cvs_work, ctx_work;
 var cvs_save, ctx_save;
-
-var listener;
 
 var quadrangle_to_show, raw_quadrangle;
 var frame_size=40, cardboard_size=30;

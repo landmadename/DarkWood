@@ -1,4 +1,5 @@
 const UNCAL_THETA = 0.5;
+
 class Line {
   constructor(rho, theta) {
     this.rho = rho
@@ -22,11 +23,8 @@ function getLinesFromData32F (data32F) {
   }
   return lines
 }
-/**
- * 计算两直线间的交点
- * @param {*} l1 
- * @param {*} l2 
- */
+
+// 计算两直线间的交点
 function getIntersection (l1, l2) {
   //角度差太小 不算，
   let minTheta = Math.min(l1.theta, l2.theta)
@@ -42,7 +40,6 @@ function getIntersection (l1, l2) {
 
   //计算两条直线的交点
   let intersection;
-  //y = a * x + b;
   let a1 = Math.abs(l1.startPoint.x - l1.endPoint.x) < Number.EPSILON ? 0 : (l1.startPoint.y - l1.endPoint.y) / (l1.startPoint.x - l1.endPoint.x);
   let b1 = l1.startPoint.y - a1 * (l1.startPoint.x);
   let a2 = Math.abs((l2.startPoint.x - l2.endPoint.x)) < Number.EPSILON ? 0 : (l2.startPoint.y - l2.endPoint.y) / (l2.startPoint.x - l2.endPoint.x);
@@ -57,10 +54,8 @@ function getIntersection (l1, l2) {
     return intersection
   }
 }
-/**
- * 计算所有交点
- * @param {*} lines 
- */
+
+// 计算所有交点
 function getAllIntersections (lines) {
   let points = []
   for (let i = 0; i < lines.length; i++) {

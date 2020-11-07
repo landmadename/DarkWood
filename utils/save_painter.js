@@ -1,7 +1,8 @@
-var cvs,ctx;
-var img_path;
 var scene_painter = require("./scene_painter");
 var main_painter = require("./main_painter");
+
+var cvs,ctx;
+var img_path;
 
 function init(canvas_input,context_input) {
   cvs = canvas_input

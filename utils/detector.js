@@ -94,15 +94,15 @@ function get_hls(mat) {
 
 function detect(mat, offset) {
   var Yoffset = 0
-  if (offset != undefined) {
-    var Yoffset = -offset.y
-  }
-  var mask = cv.Mat.zeros(mat.rows, mat.cols, cv.CV_8UC1);
+  var mask, corners
+
+  if (offset != undefined) { Yoffset = -offset.y }
+  mask = cv.Mat.zeros(mat.rows, mat.cols, cv.CV_8UC1);
   canny(mat, 5)
   contours(mat)
   approxPoly(mat, 20)
   draw_mask(mat, mask, Yoffset)
-  var corners = Harris(mat, mask, Yoffset)
+  corners = Harris(mat, mask, Yoffset)
   mask.delete()
   return corners
 }
