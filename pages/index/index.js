@@ -76,6 +76,7 @@ Page({
     var number_of_frames_to_ignore = 6;
     var camera_ctx = wx.createCameraContext();
     scene_painter.clear_scene()
+    detector.clear_max_quadrangle()
     ctx2.clearRect(0,0,1000,1000)
     listener = camera_ctx.onCameraFrame((frame) =>{
       if (i == 65000) {i=0}
@@ -83,6 +84,7 @@ Page({
         var camera_size = {width: frame.width, height: frame.height}
         offset = tools.get_offset_from_canvas_to_camera(that.data.canvas_size, camera_size)
         scale = tools.get_scale_from_canvas_to_camera(that.data.canvas_size, camera_size)
+        wx.hideLoading()
       }
       if (i++%number_of_frames_to_ignore == 0) {
         mat = tools.toMat(frame)
@@ -184,37 +186,43 @@ Page({
   },
 
   touch_start: function (e) {
-    if (e.touches.length == 1) {
-      moving_point_index = move_tools.get_touched_point_index(q_to_show, e.touches[0])
-    } else {
-      moving_point_index = false
-      move_tools.set_first_scale_length(e.touches)
+    if (this.data.mode == "pic") {
+      if (e.touches.length == 1) {
+        moving_point_index = move_tools.get_touched_point_index(q_to_show, e.touches[0])
+      } else {
+        moving_point_index = false
+        move_tools.set_first_scale_length(e.touches)
+      }
     }
    },
 
   touch_move: function (e) {
-    if (moving_point_index !== false) {
+    if (this.data.mode == "pic") {
       if (e.touches.length == 1) {
-        if (moving_point_index == -1) {
-          let move_offset = move_tools.get_move_offset(e.touches[0])
-          move_tools.move_shift(q_to_show, move_offset)
-        } else if (moving_point_index >= 0) {
-          let move_offset = move_tools.get_move_offset(e.touches[0])
-          q_to_show[moving_point_index].x += move_offset.x
-          q_to_show[moving_point_index].y += move_offset.y
-          raw_quadrangle[moving_point_index].x += move_offset.x
-          raw_quadrangle[moving_point_index].y += move_offset.y
+        if (moving_point_index !== false) {
+          if (moving_point_index == -1) {
+            let move_offset = move_tools.get_move_offset(e.touches[0])
+            move_tools.move_shift(q_to_show, move_offset)
+          } else if (moving_point_index >= 0) {
+            let move_offset = move_tools.get_move_offset(e.touches[0])
+            q_to_show[moving_point_index].x += move_offset.x
+            q_to_show[moving_point_index].y += move_offset.y
+            raw_quadrangle[moving_point_index].x += move_offset.x
+            raw_quadrangle[moving_point_index].y += move_offset.y
+          }
         }
-      } else {
-        let scale_offset = move_tools.get_scale_offset(e.touches)
-        move_tools.scale_shift(q_to_show, scale_offset)
-      }
-      this.draw()
+        } else {
+          let scale_offset = move_tools.get_scale_offset(e.touches)
+          move_tools.scale_shift(q_to_show, scale_offset)
+        }
+        this.draw()
     }
   },
 
   touch_end: function (e) {
-    moving_point_index = false
+    if (this.data.mode == "pic") {
+      moving_point_index = false
+    }
   },
 
   random_choose: function (type) {
@@ -367,8 +375,12 @@ Page({
 
   draw: function () {
     ctx2.clearRect(0, 0, 1000, 1000);
-    frame_painter.draw(q_to_show, frame_size, cardboard_size, hls)
-    frame_painter.draw_framed_image(q_to_show, raw_quadrangle)
+    if (q_to_show != undefined && q_to_show.length == 4) {
+      frame_painter.draw(q_to_show, frame_size, cardboard_size, hls)
+      if (this.data.mode == "pic") {
+        frame_painter.draw_framed_image(q_to_show, raw_quadrangle)
+      }
+    }
   },
 
 
@@ -376,29 +388,13 @@ Page({
    * 生命周期函数--监听页面加载
    */
   onLoad: function (options) {
+    var that = this
+    wx.showLoading({
+      title: '加载中',
+    })  
     tools.load_frames("http://47.99.244.218:8090", this)
     tools.load_cards("http://47.99.244.218:8090", this)
     tools.load_scenes("http://47.99.244.218:8090", this)
-    this.getwasm()
-    // 设置canvas高度
-    wx.getSystemInfo({
-      complete: (res) => {
-        var canvasHeight = res.windowHeight - res.windowWidth/2
-        this.setData({
-          canvas_size: {
-            width: res.windowWidth,
-            height: canvasHeight
-          }
-        })
-      },
-    })
-  },
-
-  /**
-   * 生命周期函数--监听页面初次渲染完成
-   */
-  onReady: function () {
-    var that = this
     this.load_ctx("#to_save", (cvs, ctx)=>{
       cvs_save = cvs
       ctx_save = ctx
@@ -415,6 +411,27 @@ Page({
       frame_painter.init(cvs2, ctx2)
       that.set_patterns()
     })
+    // 设置canvas高度
+    wx.getSystemInfo({
+      complete: (res) => {
+        var canvasHeight = res.windowHeight - res.windowWidth/2
+        this.setData({
+          canvas_size: {
+            width: res.windowWidth,
+            height: canvasHeight
+          }
+        })
+      },
+    })
+    setTimeout(() => {
+      this.getwasm()
+    }, 1000);
+  },
+
+  /**
+   * 生命周期函数--监听页面初次渲染完成
+   */
+  onReady: function () {
     // tools.draw_demo("#three");
   },
 

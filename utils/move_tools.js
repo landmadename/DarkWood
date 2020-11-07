@@ -1,6 +1,6 @@
 var Vector = require('vector2js');
 
-const radius = 25
+const radius = 35
 var prev_point = false
 var prev_scale_length = 0
 

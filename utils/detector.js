@@ -178,10 +178,14 @@ function get_max_quadrangle(points) {
   }
 }
 
+function clear_max_quadrangle() {
+  quadrangle = []
+}
 
 module.exports = {
   init: init,
   detect: detect,
   get_max_quadrangle: get_max_quadrangle,
+  clear_max_quadrangle: clear_max_quadrangle,
   get_hls: get_hls
 }
