@@ -15,6 +15,10 @@ async function set_patterns(patterns_input, callback) {
   callback()
 }
 
+function clear() {
+  ctx.clearRect(0, 0, 1000, 1000);
+}
+
 function load_imgs(patterns) {
   return new Promise((resolve, reject) => {
     var cnt = 8
@@ -68,7 +72,7 @@ function renderFramedImage(arg_1, _arg_1, arg_2, _arg_2, arg_3, _arg_3, vertex) 
   ctx.restore();
 }
 
-function draw(dots, frame_width, card_width, hls) {
+function draw_frame(dots, frame_width, card_width, hls) {
   if (dots != undefined && dots.length == 4) {
     var card_box = find_outer_box(card_width, dots)
     var frame_box = find_outer_box(frame_width, get_outer_dots(card_box))
@@ -262,7 +266,8 @@ function equation (arr1 , arr2 , arr3){
 module.exports={
   init: init,
   render: render,
-  draw: draw,
+  draw_frame: draw_frame,
+  clear: clear,
   set_patterns: set_patterns,
   set_croped_image: set_croped_image,
   draw_framed_image: draw_framed_image

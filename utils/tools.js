@@ -1,8 +1,54 @@
 var cv
+var that
+var loaded_count = 0
+
 
 function set_cv(cv_input) {
     cv = cv_input
 }
+
+function set_this(this_input) {
+    that = this_input
+}
+
+function set_canvas_size() {
+    wx.getSystemInfo({
+        complete: (res) => {
+        var canvasHeight = res.windowHeight - res.windowWidth/2
+        that.setData({
+            canvas_size: {
+            width: res.windowWidth,
+            height: canvasHeight
+            }
+        })
+        },
+    })
+}
+
+function scale_points(points, scale, Xoffset, Yoffset) { 
+    for (let i = 0; i < points.length; i++) { 
+        points[i].x = points[i].x * scale + Xoffset 
+        points[i].y = points[i].y * scale + Yoffset 
+    }
+    return points
+}
+
+function load_ctx(id, setData) {
+    const dpr = wx.getSystemInfoSync().pixelRatio
+    const query = wx.createSelectorQuery()
+    query.select(id)
+      .fields({ node: true, size: true })
+      .exec((res) => {
+        const canvas = res[0].node
+        const ctx = canvas.getContext('2d')
+  
+        canvas.width = that.data.canvas_size.width * dpr
+        canvas.height = that.data.canvas_size.height * dpr
+        ctx.scale(dpr, dpr)
+
+        setData(canvas, ctx)
+      })
+  }
 
 function load_data() {
     wx.request({
@@ -14,7 +60,7 @@ function load_data() {
     })
 }
 
-function load_frames(site, that) {
+function load_frames(site) {
     wx.request({
         url: site + '/api/v2/pages/?type=frame.FramePage&fields=*',
         method: 'GET',
@@ -32,11 +78,13 @@ function load_frames(site, that) {
             that.setData({
                 frames: frames
             })
+            loaded_count++
+            check_and_set_patterns()
         }
     })
 }
 
-function load_cards(site, that) {
+function load_cards(site) {
     wx.request({
         url: site + '/api/v2/pages/?type=frame.CardPage&fields=*',
         method: 'GET',
@@ -52,11 +100,13 @@ function load_cards(site, that) {
             that.setData({
                 cards: cards
             })
+            loaded_count++
+            check_and_set_patterns()
         }
     })
 }
 
-function load_scenes(site, that) {
+function load_scenes(site) {
     wx.request({
         url: site + '/api/v2/pages/?type=frame.ScenePage&fields=*',
         method: 'GET',
@@ -72,8 +122,18 @@ function load_scenes(site, that) {
             that.setData({
                 scenes: scenes
             })
+            loaded_count++
+            check_and_set_patterns()
         }
     })
+}
+
+function check_and_set_patterns() {
+    if (loaded_count == 3) {
+        setTimeout(() => {
+            that.set_patterns()
+        }, 500);
+    }
 }
 
 function get_offset_from_canvas_to_camera(canvas_size, camera_size) {
@@ -107,11 +167,21 @@ function toMat(frame) {
       width:frame.width,
       height:frame.height
     });
-  }
+}
+
+function quadrangle_is_ready(quadrangle) {
+    return quadrangle != undefined && quadrangle.length == 4
+}
+
+function in_pic_mode() {
+    return that.data.mode == "pic"
+}
 
 module.exports = {
     set_cv: set_cv,
+    set_this: set_this,
 
+    load_ctx: load_ctx,
     load_data: load_data,
     load_frames: load_frames,
     load_cards: load_cards,
@@ -122,4 +192,8 @@ module.exports = {
     get_scale_from_canvas_to_camera,
 
     toMat: toMat,
+    set_canvas_size: set_canvas_size,
+    scale_points: scale_points,
+    quadrangle_is_ready: quadrangle_is_ready,
+    in_pic_mode: in_pic_mode
 }

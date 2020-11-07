@@ -1,44 +1,21 @@
 var cvs,ctx;
-var quadrangle;
 var img_path;
 var scene_painter = require("./scene_painter");
-var frame_painter = require("./frame_painter");
-const dpr = wx.getSystemInfoSync().pixelRatio
+var main_painter = require("./main_painter");
 
 function init(canvas_input,context_input) {
   cvs = canvas_input
   ctx = context_input
 }
 
-function set_quadrangle(quadrangle_input) {
-  quadrangle = quadrangle_input
-}
-
-function draw_croped_image(croped_image) {
-  return new Promise((resolve, reject) => {
-    var img = cvs.createImage()
-    img.src = croped_image
-    img.onload = function () {
-      ctx.save();
-      ctx.beginPath()
-      ctx.moveTo(quadrangle[0].x, quadrangle[0].y)
-      ctx.lineTo(quadrangle[1].x, quadrangle[1].y)
-      ctx.lineTo(quadrangle[2].x, quadrangle[2].y)
-      ctx.lineTo(quadrangle[3].x, quadrangle[3].y)
-      ctx.lineTo(quadrangle[0].x, quadrangle[0].y)
-      ctx.closePath()
-      ctx.clip()
-      ctx.drawImage(img, 0, 0)
-      ctx.restore();
-      resolve(1)
-    }  
-  })
+function clear() {
+  ctx.clearRect(0, 0, 1000, 1000);
 }
 
 function draw_scene(cvs_raw, ctx_raw, img) {
   return new Promise((resolve, reject) => {
     scene_painter.init(cvs, ctx)
-    scene_painter.set_scene(img, quadrangle)
+    scene_painter.set_scene(img)
     setTimeout(
       ()=>{
         scene_painter.init(cvs_raw, ctx_raw)
@@ -48,13 +25,14 @@ function draw_scene(cvs_raw, ctx_raw, img) {
   })
 }
 
-function draw_frame(cvs_raw, ctx_raw, frame_size, cardboard_size, hls) {
+function draw(cvs_raw, ctx_raw, frame_size, cardboard_size, hls, quadrangle, raw_quadrangle) {
   return new Promise((resolve, reject) => {
-    frame_painter.init(cvs, ctx)
-    frame_painter.draw(quadrangle, frame_size, cardboard_size, hls)
+    main_painter.init(cvs, ctx)
+    main_painter.draw_frame(quadrangle, frame_size, cardboard_size, hls)
+    main_painter.draw_framed_image(quadrangle, raw_quadrangle)
     setTimeout(
       ()=>{
-        frame_painter.init(cvs_raw, ctx_raw)
+        main_painter.init(cvs_raw, ctx_raw)
         resolve(3)
       },300
     )
@@ -121,9 +99,6 @@ function save_img() {
                 icon: 'none'
             });
         }
-    },
-    complete(res) {
-        console.log(res);
     }
   })
 }
@@ -139,9 +114,8 @@ async function save() {
 
 module.exports={
   init: init,
-  draw_croped_image: draw_croped_image,
-  set_quadrangle: set_quadrangle,
   draw_scene: draw_scene,
-  draw_frame: draw_frame,
-  save: save
+  draw: draw,
+  save: save,
+  clear: clear
 }

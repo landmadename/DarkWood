@@ -1,15 +1,14 @@
 var cv;
 var wasm = require("../../utils/wasm");
 var detector = require("../../utils/detector");
-var painter = require("../../utils/painter")
 var tools = require("../../utils/tools")
 var move_tools = require("../../utils/move_tools")
-var frame_painter = require("../../utils/frame_painter");
+var main_painter = require("../../utils/main_painter");
 var scene_painter = require("../../utils/scene_painter");
 var save_painter = require("../../utils/save_painter");
 
-var cvs3, ctx3;
-var cvs2, ctx2;
+var cvs_scene, ctx_scene;
+var cvs_work, ctx_work;
 var cvs_save, ctx_save;
 
 var listener;
@@ -19,6 +18,8 @@ var hls;
 var frame_size=40, cardboard_size=30;
 var frame_id=4, card_id=6, scene_id=-1;
 var moving_point_index = false;
+
+const without_scene = -1;
 
 const dpr = wx.getSystemInfoSync().pixelRatio
 
@@ -77,7 +78,7 @@ Page({
     var camera_ctx = wx.createCameraContext();
     scene_painter.clear_scene()
     detector.clear_max_quadrangle()
-    ctx2.clearRect(0,0,1000,1000)
+    main_painter.clear()
     listener = camera_ctx.onCameraFrame((frame) =>{
       if (i == 65000) {i=0}
       if (i == 1) {
@@ -92,10 +93,8 @@ Page({
         corners = detector.detect(mat, offset)
         quadrangle = detector.get_max_quadrangle(corners)
         q_to_show = JSON.parse(JSON.stringify(quadrangle))
-        painter.scale_points(q_to_show, scale, offset.x, offset.y)
-        // painter.draw_points(q_to_show, cvs3, ctx3)
+        tools.scale_points(q_to_show, scale, offset.x, offset.y)
         that.draw()
-        // cv.imshow(cvs3, mat, ctx3)
         mat.delete()
       }
     })
@@ -139,7 +138,7 @@ Page({
       croped_image: e.detail.resultSrc,
       simple_crop_show: false
     })
-    frame_painter.set_croped_image(e.detail.resultSrc)
+    main_painter.set_croped_image(e.detail.resultSrc)
     cv.imread(e.detail.resultSrc, function(mat) {
       hls = detector.get_hls(mat)
       corners = detector.detect(mat)
@@ -148,15 +147,13 @@ Page({
       } else {
         quadrangle = detector.get_max_quadrangle(corners)
         q_to_show = JSON.parse(JSON.stringify(quadrangle))
-        painter.scale_points(q_to_show, 1/dpr, 0, 0)
+        tools.scale_points(q_to_show, 1/dpr, 0, 0)
       }
       raw_quadrangle = JSON.parse(JSON.stringify(q_to_show))
       that.setData({
         quadrangle: q_to_show
       })
-      // painter.draw_points(q_to_show, cvs3, ctx3)
       that.draw()
-      // cv.imshow(cvs3, mat, ctx3)
       mat.delete()
     })
   },
@@ -186,7 +183,7 @@ Page({
   },
 
   touch_start: function (e) {
-    if (this.data.mode == "pic") {
+    if (tools.in_pic_mode()) {
       if (e.touches.length == 1) {
         moving_point_index = move_tools.get_touched_point_index(q_to_show, e.touches[0])
       } else {
@@ -197,7 +194,7 @@ Page({
    },
 
   touch_move: function (e) {
-    if (this.data.mode == "pic") {
+    if (tools.in_pic_mode()) {
       if (e.touches.length == 1) {
         if (moving_point_index !== false) {
           if (moving_point_index == -1) {
@@ -220,7 +217,7 @@ Page({
   },
 
   touch_end: function (e) {
-    if (this.data.mode == "pic") {
+    if (tools.in_pic_mode()) {
       moving_point_index = false
     }
   },
@@ -301,7 +298,7 @@ Page({
   },
 
   tap_to_change_scene: function(e) {
-    if (this.data.mode == "pic") {
+    if (tools.in_pic_mode()) {
       var new_scene_id = parseInt(e.currentTarget.dataset.scene_id)
       if (scene_id != new_scene_id) {
         scene_id = new_scene_id
@@ -322,23 +319,56 @@ Page({
   },
 
   save: async function () {
-    if (this.data.mode == "pic") {
-      save_painter.set_quadrangle(q_to_show)
+    if (tools.in_pic_mode()) {
       if (scene_id == this.data.transparent_scene_id) {
-        ctx_save.clearRect(0, 0, 1000, 1000)
-      } else if (scene_id == -1) {
-        await save_painter.draw_scene(cvs3, ctx3, this.data.croped_image)
+        save_painter.clear()
+      } else if (scene_id == without_scene) {
+        await save_painter.draw_scene(cvs_scene, ctx_scene, this.data.croped_image)
       } else {
-        await save_painter.draw_scene(cvs3, ctx3, this.data.scenes[scene_id]["img"])
+        await save_painter.draw_scene(cvs_scene, ctx_scene, this.data.scenes[scene_id]["img"])
       }
-      await save_painter.draw_croped_image(this.data.croped_image)
-      await save_painter.draw_frame(cvs2, ctx2, frame_size, cardboard_size, hls)
+      await save_painter.draw(cvs_work, ctx_work, frame_size, cardboard_size, hls, q_to_show, raw_quadrangle)
       save_painter.save()
     }
   },
 
+  onLoad: function () {
+    wx.showLoading({title: '加载中'})
+    
+    tools.set_this(this)
+    this.load_cvs_ctx_and_initial()
+    tools.load_frames("http://47.99.244.218:8090")
+    tools.load_cards ("http://47.99.244.218:8090")
+    tools.load_scenes("http://47.99.244.218:8090")
+    tools.set_canvas_size()
+
+    setTimeout(() => {
+      this.getwasm()
+    }, 1000);
+  },
+
+  
+
+  load_cvs_ctx_and_initial: function () {
+    tools.load_ctx("#to_save", (cvs, ctx)=>{
+      cvs_save = cvs
+      ctx_save = ctx
+      save_painter.init(cvs_save, ctx_save)
+    })
+    tools.load_ctx("#scene", (cvs, ctx)=>{
+      cvs_scene = cvs
+      ctx_scene = ctx
+      scene_painter.init(cvs_scene, ctx_scene)
+    })
+    tools.load_ctx("#work", (cvs, ctx)=>{
+      cvs_work = cvs
+      ctx_work = ctx
+      main_painter.init(cvs_work, ctx_work)
+    })
+  },
+
   set_patterns: function () {
-    frame_painter.set_patterns({
+    main_painter.set_patterns({
       "frame": {
         "top":    {"path":this.data.frames[frame_id]["top"]},
         "right":  {"path":this.data.frames[frame_id]["top"]},
@@ -356,124 +386,14 @@ Page({
     )
   },
 
-  load_ctx: function(id, setData) {
-    var that = this
-    const query = wx.createSelectorQuery()
-    query.select(id)
-      .fields({ node: true, size: true })
-      .exec((res) => {
-        const canvas = res[0].node
-        const ctx = canvas.getContext('2d')
-  
-        canvas.width = that.data.canvas_size.width * dpr
-        canvas.height = that.data.canvas_size.height * dpr
-        ctx.scale(dpr, dpr)
-
-        setData(canvas, ctx)
-      })
-  },
-
   draw: function () {
-    ctx2.clearRect(0, 0, 1000, 1000);
-    if (q_to_show != undefined && q_to_show.length == 4) {
-      frame_painter.draw(q_to_show, frame_size, cardboard_size, hls)
-      if (this.data.mode == "pic") {
-        frame_painter.draw_framed_image(q_to_show, raw_quadrangle)
+    main_painter.clear()
+    if (tools.quadrangle_is_ready(q_to_show)) {
+      main_painter.draw_frame(q_to_show, frame_size, cardboard_size, hls)
+      if (tools.in_pic_mode()) {
+        main_painter.draw_framed_image(q_to_show, raw_quadrangle)
       }
     }
   },
-
-
-  /**
-   * 生命周期函数--监听页面加载
-   */
-  onLoad: function (options) {
-    var that = this
-    wx.showLoading({
-      title: '加载中',
-    })  
-    tools.load_frames("http://47.99.244.218:8090", this)
-    tools.load_cards("http://47.99.244.218:8090", this)
-    tools.load_scenes("http://47.99.244.218:8090", this)
-    this.load_ctx("#to_save", (cvs, ctx)=>{
-      cvs_save = cvs
-      ctx_save = ctx
-      save_painter.init(cvs_save, ctx_save)
-    })
-    this.load_ctx("#three", (cvs, ctx)=>{
-      cvs3 = cvs
-      ctx3 = ctx
-      scene_painter.init(cvs3, ctx3)
-    })
-    this.load_ctx("#two", (cvs, ctx)=>{
-      cvs2 = cvs
-      ctx2 = ctx
-      frame_painter.init(cvs2, ctx2)
-      that.set_patterns()
-    })
-    // 设置canvas高度
-    wx.getSystemInfo({
-      complete: (res) => {
-        var canvasHeight = res.windowHeight - res.windowWidth/2
-        this.setData({
-          canvas_size: {
-            width: res.windowWidth,
-            height: canvasHeight
-          }
-        })
-      },
-    })
-    setTimeout(() => {
-      this.getwasm()
-    }, 1000);
-  },
-
-  /**
-   * 生命周期函数--监听页面初次渲染完成
-   */
-  onReady: function () {
-    // tools.draw_demo("#three");
-  },
-
-  /**
-   * 生命周期函数--监听页面显示
-   */
-  onShow: function () {
-    
-  },
-
-  /**
-   * 生命周期函数--监听页面隐藏
-   */
-  onHide: function () {
-    
-  },
-
-  /**
-   * 生命周期函数--监听页面卸载
-   */
-  onUnload: function () {
-    
-  },
-
-  /**
-   * 页面相关事件处理函数--监听用户下拉动作
-   */
-  onPullDownRefresh: function () {
-    
-  },
-
-  /**
-   * 页面上拉触底事件的处理函数
-   */
-  onReachBottom: function () {
-    
-  },
-
-  /**
-   * 用户点击右上角分享
-   */
-  onShareAppMessage: function () {
-    
-  }
+  
 })
