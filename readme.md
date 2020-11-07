@@ -41,3 +41,5 @@
     - 修复：手机无法在开启后直接进入AR模式
     - 修复：双指无法放大
 18. - 重构：onLoad, draw, save
+    - 重构：tap_random_choose, 简单的按钮事件
+    - 重构：在canvas上的滑动拖拽事件

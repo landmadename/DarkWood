@@ -20,6 +20,7 @@ var frame_id=4, card_id=6, scene_id=-1;
 var moving_point_index = false;
 
 const without_scene = -1;
+const move_mode = -1;
 
 const dpr = wx.getSystemInfoSync().pixelRatio
 
@@ -92,7 +93,7 @@ Page({
         hls = detector.get_hls(mat)
         corners = detector.detect(mat, offset)
         quadrangle = detector.get_max_quadrangle(corners)
-        q_to_show = JSON.parse(JSON.stringify(quadrangle))
+        q_to_show = tools.deep_copy(quadrangle)
         tools.scale_points(q_to_show, scale, offset.x, offset.y)
         that.draw()
         mat.delete()
@@ -134,22 +135,24 @@ Page({
 
   crop_complete: function(e) {
     var that = this
+
+    main_painter.set_croped_image(e.detail.resultSrc)
     this.setData({
       croped_image: e.detail.resultSrc,
       simple_crop_show: false
     })
-    main_painter.set_croped_image(e.detail.resultSrc)
+
     cv.imread(e.detail.resultSrc, function(mat) {
-      hls = detector.get_hls(mat)
+      // hls = detector.get_hls(mat)
       corners = detector.detect(mat)
       if (corners.length < 4) {
-        q_to_show = that.get_default_quadrangle()
+        q_to_show = tools.get_default_quadrangle()
       } else {
         quadrangle = detector.get_max_quadrangle(corners)
-        q_to_show = JSON.parse(JSON.stringify(quadrangle))
+        q_to_show = tools.deep_copy(quadrangle)
         tools.scale_points(q_to_show, 1/dpr, 0, 0)
       }
-      raw_quadrangle = JSON.parse(JSON.stringify(q_to_show))
+      raw_quadrangle = tools.deep_copy(q_to_show)
       that.setData({
         quadrangle: q_to_show
       })
@@ -158,29 +161,16 @@ Page({
     })
   },
 
-  get_default_quadrangle: function () {
-    return [
-      {x: 100, y:100},
-      {x: 100, y:this.data.canvas_size.height-100},
-      {x: this.data.canvas_size.width-100, y:this.data.canvas_size.height-100},
-      {x: this.data.canvas_size.width-100, y:100},
-    ]
-  },
-
   slider_change: function(e) {
     if (this.data.current_choose_panel == 0) {
       frame_size = e.detail.value
-    } else {
+    } else if (this.data.current_choose_panel == 1){
       cardboard_size = e.detail.value
     }
     this.draw()
   },
 
-  tap_intro_button: function() {
-    // wx.navigateTo({
-    //   url: '../intro/intro',
-    // })
-  },
+  // touch and swipe on canvas
 
   touch_start: function (e) {
     if (tools.in_pic_mode()) {
@@ -197,15 +187,12 @@ Page({
     if (tools.in_pic_mode()) {
       if (e.touches.length == 1) {
         if (moving_point_index !== false) {
-          if (moving_point_index == -1) {
-            let move_offset = move_tools.get_move_offset(e.touches[0])
+          if (moving_point_index == move_mode) {
+            var move_offset = move_tools.get_move_offset(e.touches[0])
             move_tools.move_shift(q_to_show, move_offset)
-          } else if (moving_point_index >= 0) {
-            let move_offset = move_tools.get_move_offset(e.touches[0])
-            q_to_show[moving_point_index].x += move_offset.x
-            q_to_show[moving_point_index].y += move_offset.y
-            raw_quadrangle[moving_point_index].x += move_offset.x
-            raw_quadrangle[moving_point_index].y += move_offset.y
+          } else {
+            var move_offset = move_tools.get_move_offset(e.touches[0])
+            move_tools.point_shift(q_to_show, raw_quadrangle, move_offset, moving_point_index)
           }
         }
         } else {
@@ -222,37 +209,26 @@ Page({
     }
   },
 
-  random_choose: function (type) {
-    var ids = Object.keys(this.data[type])
-    var randomElement = ids[Math.floor(Math.random() * ids.length)];
-    var e = {}
-    if (type == "frames") {
-      e = {currentTarget: {dataset: {frame_id: randomElement}}}
-      this.tap_to_change_frame(e)
-    } else if (type == "cards") {
-      e = {currentTarget: {dataset: {card_id: randomElement}}}
-      this.tap_to_change_card(e)
-    } else if (type == "scenes") {
-      if (scene_id != randomElement) {
-        e = {currentTarget: {dataset: {scene_id: randomElement}}}
-        this.tap_to_change_scene(e)
-      }
-    }
+  // tap buttons
+
+  tap_intro_button: function() {
+    wx.navigateTo({
+      url: '../intro/intro',
+    })
   },
 
   tap_random_choose: function (e) {
     var type = e.currentTarget.dataset.type
     if (type == "frames_and_cards") {
       type = "frames"
-      this.random_choose(type)
+      tools.random_choose(type)
       type = "cards"
-      this.random_choose(type)
+      tools.random_choose(type)
     } else {
-      this.random_choose(type)
+      tools.random_choose(type)
     }
   },
 
-  // 通过点击设置当前的panel id
   tap_to_change_choose_panel: function(e) {
     var panel_id = parseInt(e.currentTarget.dataset.panel_id)
     this.setData({
@@ -276,6 +252,22 @@ Page({
     this.set_patterns()
   },
 
+  tap_to_change_scene: function(e) {
+    if (tools.in_pic_mode()) {
+      var new_scene_id = parseInt(e.currentTarget.dataset.scene_id)
+      if (scene_id != new_scene_id) {
+        scene_id = new_scene_id
+        scene_painter.set_scene(this.data.scenes[scene_id]["img"], q_to_show)
+      } else {
+        scene_id = -1
+        scene_painter.clear_scene()
+      }
+      this.setData({
+        current_scene_id: scene_id
+      })
+    }
+  },
+
   scan_code: function () {
     var that = this
     wx.scanCode({
@@ -295,22 +287,6 @@ Page({
         }
       }
     })
-  },
-
-  tap_to_change_scene: function(e) {
-    if (tools.in_pic_mode()) {
-      var new_scene_id = parseInt(e.currentTarget.dataset.scene_id)
-      if (scene_id != new_scene_id) {
-        scene_id = new_scene_id
-        scene_painter.set_scene(this.data.scenes[scene_id]["img"], q_to_show)
-      } else {
-        scene_id = -1
-        scene_painter.clear_scene()
-      }
-      this.setData({
-        current_scene_id: scene_id
-      })
-    }
   },
 
   correct: function () {

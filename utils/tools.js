@@ -177,6 +177,35 @@ function in_pic_mode() {
     return that.data.mode == "pic"
 }
 
+function random_choose(type) {
+    var ids = Object.keys(that.data[type])
+    var randomElement = ids[Math.floor(Math.random() * ids.length)];
+    var e = {}
+    if (type == "frames") {
+        e = {currentTarget: {dataset: {frame_id: randomElement}}}
+        that.tap_to_change_frame(e)
+    } else if (type == "cards") {
+        e = {currentTarget: {dataset: {card_id: randomElement}}}
+        that.tap_to_change_card(e)
+    } else if (type == "scenes" && scene_id != randomElement) {
+        e = {currentTarget: {dataset: {scene_id: randomElement}}}
+        that.tap_to_change_scene(e)
+    }
+}
+
+function get_default_quadrangle() {
+    return [
+        {x: 100, y:100},
+        {x: 100, y:that.data.canvas_size.height-100},
+        {x: that.data.canvas_size.width-100, y:that.data.canvas_size.height-100},
+        {x: that.data.canvas_size.width-100, y:100},
+    ]
+}
+
+function deep_copy(obj) {
+    return JSON.parse(JSON.stringify(obj))
+}
+
 module.exports = {
     set_cv: set_cv,
     set_this: set_this,
@@ -195,5 +224,8 @@ module.exports = {
     set_canvas_size: set_canvas_size,
     scale_points: scale_points,
     quadrangle_is_ready: quadrangle_is_ready,
-    in_pic_mode: in_pic_mode
+    in_pic_mode: in_pic_mode,
+    random_choose: random_choose,
+    get_default_quadrangle: get_default_quadrangle,
+    deep_copy: deep_copy
 }

@@ -1,6 +1,7 @@
 var Vector = require('vector2js');
 
 const radius = 35
+const move_mode = -1;
 var prev_point = false
 var prev_scale_length = 0
 
@@ -13,7 +14,7 @@ function get_touched_point_index(points, touch_point) {
   }
   if (point_in_poly(touch_point, points)) {
     prev_point = touch_point
-    return -1
+    return move_mode
   }
   return false
 }
@@ -69,6 +70,14 @@ function move_shift(points, offset) {
   points[3].y += offset.y
 }
 
+function point_shift(quadrangle, raw_quadrangle, move_offset, moving_point_index) {
+  quadrangle[moving_point_index].x += move_offset.x
+  quadrangle[moving_point_index].y += move_offset.y
+  raw_quadrangle[moving_point_index].x += move_offset.x
+  raw_quadrangle[moving_point_index].y += move_offset.y
+
+}
+
 function correct(points) {
   var height = (new Vector(points[0].x, points[0].y).subSelf(new Vector(points[1].x, points[1].y)).length() + new Vector(points[2].x, points[2].y).subSelf(new Vector(points[3].x, points[3].y)).length())/2
   var width = (new Vector(points[0].x, points[0].y).subSelf(new Vector(points[3].x, points[3].y)).length() + new Vector(points[2].x, points[2].y).subSelf(new Vector(points[1].x, points[1].y)).length())/2
@@ -88,5 +97,6 @@ module.exports = {
   get_scale_offset: get_scale_offset,
   scale_shift: scale_shift,
   move_shift: move_shift,
-  correct: correct
+  correct: correct,
+  point_shift: point_shift
 }
