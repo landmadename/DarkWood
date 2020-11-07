@@ -94,7 +94,7 @@ Page({
         corners = detector.detect(mat, offset)
         quadrangle = detector.get_max_quadrangle(corners)
         q_to_show = tools.deep_copy(quadrangle)
-        tools.scale_points(q_to_show, scale, offset.x, offset.y)
+        tools.scale_points(q_to_show, scale, offset)
         that.draw()
         mat.delete()
       }
@@ -150,7 +150,7 @@ Page({
       } else {
         quadrangle = detector.get_max_quadrangle(corners)
         q_to_show = tools.deep_copy(quadrangle)
-        tools.scale_points(q_to_show, 1/dpr, 0, 0)
+        tools.scale_points(q_to_show, 1/dpr, {x:0, y:0})
       }
       raw_quadrangle = tools.deep_copy(q_to_show)
       that.setData({
