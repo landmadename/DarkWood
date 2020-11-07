@@ -3,6 +3,7 @@ var wasm = require("../../utils/wasm");
 var detector = require("../../utils/detector");
 var painter = require("../../utils/painter")
 var tools = require("../../utils/tools")
+var move_tools = require("../../utils/move_tools")
 var frame_painter = require("../../utils/frame_painter");
 var scene_painter = require("../../utils/scene_painter");
 var save_painter = require("../../utils/save_painter");
@@ -13,10 +14,11 @@ var cvs_save, ctx_save;
 
 var listener;
 
-var q_to_show;
+var q_to_show, raw_quadrangle;
 var hls;
 var frame_size=40, cardboard_size=30;
 var frame_id=4, card_id=6, scene_id=-1;
+var moving_point_index = false;
 
 const dpr = wx.getSystemInfoSync().pixelRatio
 
@@ -135,6 +137,7 @@ Page({
       croped_image: e.detail.resultSrc,
       simple_crop_show: false
     })
+    frame_painter.set_croped_image(e.detail.resultSrc)
     cv.imread(e.detail.resultSrc, function(mat) {
       hls = detector.get_hls(mat)
       corners = detector.detect(mat)
@@ -145,6 +148,7 @@ Page({
         q_to_show = JSON.parse(JSON.stringify(quadrangle))
         painter.scale_points(q_to_show, 1/dpr, 0, 0)
       }
+      raw_quadrangle = JSON.parse(JSON.stringify(q_to_show))
       that.setData({
         quadrangle: q_to_show
       })
@@ -179,13 +183,38 @@ Page({
     // })
   },
 
-  move: function(e) {
-    if (e.detail.source == "touch") {
-      var index = e.currentTarget.dataset.index
-      q_to_show[index].x = e.detail.x+30
-      q_to_show[index].y = e.detail.y+30
+  touch_start: function (e) {
+    if (e.touches.length == 1) {
+      moving_point_index = move_tools.get_touched_point_index(q_to_show, e.touches[0])
+    } else {
+      moving_point_index = false
+      move_tools.set_first_scale_length(e.touches)
+    }
+   },
+
+  touch_move: function (e) {
+    if (moving_point_index !== false) {
+      if (e.touches.length == 1) {
+        if (moving_point_index == -1) {
+          let move_offset = move_tools.get_move_offset(e.touches[0])
+          move_tools.move_shift(q_to_show, move_offset)
+        } else if (moving_point_index >= 0) {
+          let move_offset = move_tools.get_move_offset(e.touches[0])
+          q_to_show[moving_point_index].x += move_offset.x
+          q_to_show[moving_point_index].y += move_offset.y
+          raw_quadrangle[moving_point_index].x += move_offset.x
+          raw_quadrangle[moving_point_index].y += move_offset.y
+        }
+      } else {
+        let scale_offset = move_tools.get_scale_offset(e.touches)
+        move_tools.scale_shift(q_to_show, scale_offset)
+      }
       this.draw()
     }
+  },
+
+  touch_end: function (e) {
+    moving_point_index = false
   },
 
   random_choose: function (type) {
@@ -279,6 +308,11 @@ Page({
     }
   },
 
+  correct: function () {
+    move_tools.correct(q_to_show)
+    this.draw()
+  },
+
   save: async function () {
     if (this.data.mode == "pic") {
       save_painter.set_quadrangle(q_to_show)
@@ -334,7 +368,9 @@ Page({
   draw: function () {
     ctx2.clearRect(0, 0, 1000, 1000);
     frame_painter.draw(q_to_show, frame_size, cardboard_size, hls)
+    frame_painter.draw_framed_image(q_to_show, raw_quadrangle)
   },
+
 
   /**
    * 生命周期函数--监听页面加载

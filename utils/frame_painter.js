@@ -2,6 +2,7 @@ var Vector = require('vector2js');
 
 var cvs,ctx;
 var patterns = {};
+var croped_image;
 
 function init(canvas_input,context_input) {
   cvs = canvas_input
@@ -29,6 +30,42 @@ function load_imgs(patterns) {
       }
     }
   })
+}
+
+function set_croped_image(src) {
+  croped_image = cvs.createImage()
+  croped_image.src = src
+}
+
+function draw_framed_image(quadrangle, raw_quadrangle) {
+  var dot1 = quadrangle[0]
+  var dot2 = quadrangle[1]
+  var dot3 = quadrangle[2]
+  var dot4 = quadrangle[3]
+
+  var idot1 = raw_quadrangle[0]
+  var idot2 = raw_quadrangle[1]
+  var idot3 = raw_quadrangle[2]
+  var idot4 = raw_quadrangle[3]
+
+  renderFramedImage(idot3, dot3, idot2, dot2, idot4, dot4, idot1);
+  renderFramedImage(idot1, dot1, idot2, dot2, idot4, dot4, idot1);
+}
+
+function renderFramedImage(arg_1, _arg_1, arg_2, _arg_2, arg_3, _arg_3, vertex) {
+  var img = croped_image
+  ctx.save();
+  ctx.beginPath();
+  ctx.moveTo(_arg_1.x, _arg_1.y);
+  ctx.lineTo(_arg_2.x, _arg_2.y);
+  ctx.lineTo(_arg_3.x, _arg_3.y);
+  // ctx.stroke();
+  ctx.closePath();
+  ctx.clip();
+  var result = getMatrix(arg_1 , _arg_1 , arg_2 , _arg_2 , arg_3 , _arg_3);
+  ctx.transform(result.a, result.b, result.c, result.d, result.e, result.f);
+  ctx.drawImage(img, 0, 0)
+  ctx.restore();
 }
 
 function draw(dots, frame_width, card_width, hls) {
@@ -226,5 +263,7 @@ module.exports={
   init: init,
   render: render,
   draw: draw,
-  set_patterns: set_patterns
+  set_patterns: set_patterns,
+  set_croped_image: set_croped_image,
+  draw_framed_image: draw_framed_image
 }

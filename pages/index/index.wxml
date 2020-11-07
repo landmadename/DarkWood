@@ -1,12 +1,12 @@
 <view class="body">
   <simple-crop wx:if="{{simple_crop_show}}" size="{{canvas_size}}" src="{{imageUrl}}" cropSizePercent="{{0.75}}" borderColor="#fff" bindcropClose="close_crop" bindcropCrop="crop_complete"></simple-crop>
-  <movable-area style="width:750rpx;height:{{canvas_size.height}}px;position:absolute;z-index:106">
+  <!-- <movable-area style="width:750rpx;height:{{canvas_size.height}}px;position:absolute;z-index:106">
     <block wx:for="{{quadrangle}}" wx:key="*this" class="choice_box">
       <movable-view x="{{item.x-30}}" y="{{item.y-30}}" data-index="{{index}}" direction="all" inertia="false" disabled="{{mode=='AR'}}" bindchange="move"></movable-view>
     </block>
-  </movable-area>
+  </movable-area> -->
   <canvas type="2d" id="OffscreenCanvas" style="width:0px;height:0px;"></canvas>
-  <canvas type="2d" id="two" style="width:750rpx;height:{{canvas_size.height}}px;position:absolute;z-index:102"></canvas>
+  <canvas type="2d" id="two" style="width:750rpx;height:{{canvas_size.height}}px;position:absolute;z-index:102" bindtouchstart="touch_start" bindtouchmove="touch_move" bindtouchend="touch_end"></canvas>
   <canvas type="2d" id="three" style="width:750rpx;height:{{canvas_size.height}}px;position:absolute;z-index:101"></canvas>
   <image src="{{croped_image}}" style="width:750rpx;height:{{canvas_size.height}}px;position:absolute;z-index:100" wx:if="{{mode == 'pic'}}"></image>
   <camera device-position="back" flash="off" resolution="low" frame-size="medium" binderror="error" style="width:750rpx;height:{{canvas_size.height}}px;position:absolute"></camera>
@@ -93,10 +93,7 @@
           <view class="transparent_icon" data-scene_id="{{transparent_scene_id}}" bindtap="tap_to_change_scene"></view>
         </view>
         <view class="panel_button">
-          <view class="correct_icon"></view>
-        </view>
-        <view class="panel_button">
-          <view class="move_icon"></view>
+          <view class="correct_icon" bindtap="correct"></view>
         </view>
         <view class="panel_button" bindtap="save">
           <view class="save2_icon"></view>
