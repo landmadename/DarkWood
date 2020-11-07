@@ -13,15 +13,14 @@ var cvs_save, ctx_save;
 
 var listener;
 
-var q_to_show, raw_quadrangle;
-var hls;
+var quadrangle_to_show, raw_quadrangle;
 var frame_size=40, cardboard_size=30;
 var frame_id=4, card_id=6, scene_id=-1;
 var moving_point_index = false;
+var hls;
 
 const without_scene = -1;
 const move_mode = -1;
-
 const dpr = wx.getSystemInfoSync().pixelRatio
 
 Page({
@@ -53,12 +52,14 @@ Page({
     simple_crop_show: false,
   },
 
+  // WASM
+
   getwasm: function () {
     var that = this
     wasm.init({
       url:"http://www.aiotforest.com/opencv.zip",
-      type:"zip", //格式：wasm,zip
-      useCache:true, //是否使用缓存
+      type:"zip",
+      useCache:true,
       self:this,
       success: function (Module) {
         cv=Module;
@@ -69,61 +70,48 @@ Page({
     })
   },
 
+  // to AR
+
   to_AR: function() {
     var that = this;
-    var corners = [];
-    var mat;
-    var i = 1;
-    var scale, offset={};
-    var number_of_frames_to_ignore = 6;
+    var corners = [], mat, i = 1, scale, offset={};
+    const number_of_frames_to_ignore = 6;
     var camera_ctx = wx.createCameraContext();
+
     scene_painter.clear_scene()
     detector.clear_max_quadrangle()
     main_painter.clear()
+    wx.hideLoading()
+
     listener = camera_ctx.onCameraFrame((frame) =>{
       if (i == 65000) {i=0}
       if (i == 1) {
         var camera_size = {width: frame.width, height: frame.height}
         offset = tools.get_offset_from_canvas_to_camera(that.data.canvas_size, camera_size)
         scale = tools.get_scale_from_canvas_to_camera(that.data.canvas_size, camera_size)
-        wx.hideLoading()
       }
       if (i++%number_of_frames_to_ignore == 0) {
         mat = tools.toMat(frame)
-        hls = detector.get_hls(mat)
+        // hls = detector.get_hls(mat)
         corners = detector.detect(mat, offset)
         quadrangle = detector.get_max_quadrangle(corners)
-        q_to_show = tools.deep_copy(quadrangle)
-        tools.scale_points(q_to_show, scale, offset)
+        quadrangle_to_show = tools.deep_copy(quadrangle)
+        tools.scale_points(quadrangle_to_show, scale, offset)
         that.draw()
         mat.delete()
       }
     })
     listener.start()
-
     this.setData({
       mode: "AR"
     })
   },
 
+  // to Pic
+
   to_pic: function() {
-    if (listener != undefined) {
-      listener.stop()
-    }
-    var that = this
-    wx.chooseImage({
-      count: 1,
-      sizeType: ['compressed'],
-      sourceType: ['album', 'camera'],
-      success (res) {
-        const tempFilePath = res.tempFilePaths[0]
-        that.setData({
-          imageUrl: tempFilePath,
-          simple_crop_show: true,
-          mode: "pic"
-        })
-      }
-    })
+    if (listener != undefined) { listener.stop() }
+    tools.choose_image()
   },
 
   close_crop: function() {
@@ -141,33 +129,20 @@ Page({
       croped_image: e.detail.resultSrc,
       simple_crop_show: false
     })
-
     cv.imread(e.detail.resultSrc, function(mat) {
       // hls = detector.get_hls(mat)
       corners = detector.detect(mat)
       if (corners.length < 4) {
-        q_to_show = tools.get_default_quadrangle()
+        quadrangle_to_show = tools.get_default_quadrangle()
       } else {
         quadrangle = detector.get_max_quadrangle(corners)
-        q_to_show = tools.deep_copy(quadrangle)
-        tools.scale_points(q_to_show, 1/dpr, {x:0, y:0})
+        quadrangle_to_show = tools.deep_copy(quadrangle)
+        tools.scale_points(quadrangle_to_show, 1/dpr, {x:0, y:0})
       }
-      raw_quadrangle = tools.deep_copy(q_to_show)
-      that.setData({
-        quadrangle: q_to_show
-      })
+      raw_quadrangle = tools.deep_copy(quadrangle_to_show)
       that.draw()
       mat.delete()
     })
-  },
-
-  slider_change: function(e) {
-    if (this.data.current_choose_panel == 0) {
-      frame_size = e.detail.value
-    } else if (this.data.current_choose_panel == 1){
-      cardboard_size = e.detail.value
-    }
-    this.draw()
   },
 
   // touch and swipe on canvas
@@ -175,7 +150,7 @@ Page({
   touch_start: function (e) {
     if (tools.in_pic_mode()) {
       if (e.touches.length == 1) {
-        moving_point_index = move_tools.get_touched_point_index(q_to_show, e.touches[0])
+        moving_point_index = move_tools.get_touched_point_index(quadrangle_to_show, e.touches[0])
       } else {
         moving_point_index = false
         move_tools.set_first_scale_length(e.touches)
@@ -189,15 +164,15 @@ Page({
         if (moving_point_index !== false) {
           if (moving_point_index == move_mode) {
             var move_offset = move_tools.get_move_offset(e.touches[0])
-            move_tools.move_shift(q_to_show, move_offset)
+            move_tools.move_shift(quadrangle_to_show, move_offset)
           } else {
             var move_offset = move_tools.get_move_offset(e.touches[0])
-            move_tools.point_shift(q_to_show, raw_quadrangle, move_offset, moving_point_index)
+            move_tools.point_shift(quadrangle_to_show, raw_quadrangle, move_offset, moving_point_index)
           }
         }
         } else {
           let scale_offset = move_tools.get_scale_offset(e.touches)
-          move_tools.scale_shift(q_to_show, scale_offset)
+          move_tools.scale_shift(quadrangle_to_show, scale_offset)
         }
         this.draw()
     }
@@ -209,7 +184,16 @@ Page({
     }
   },
 
-  // tap buttons
+  // operate handler
+  
+  slider_change: function(e) {
+    if (this.data.current_choose_panel == 0) {
+      frame_size = e.detail.value
+    } else if (this.data.current_choose_panel == 1){
+      cardboard_size = e.detail.value
+    }
+    this.draw()
+  },
 
   tap_intro_button: function() {
     wx.navigateTo({
@@ -257,7 +241,7 @@ Page({
       var new_scene_id = parseInt(e.currentTarget.dataset.scene_id)
       if (scene_id != new_scene_id) {
         scene_id = new_scene_id
-        scene_painter.set_scene(this.data.scenes[scene_id]["img"], q_to_show)
+        scene_painter.set_scene(this.data.scenes[scene_id]["img"], quadrangle_to_show)
       } else {
         scene_id = -1
         scene_painter.clear_scene()
@@ -290,7 +274,7 @@ Page({
   },
 
   correct: function () {
-    move_tools.correct(q_to_show)
+    move_tools.correct(quadrangle_to_show)
     this.draw()
   },
 
@@ -303,7 +287,7 @@ Page({
       } else {
         await save_painter.draw_scene(cvs_scene, ctx_scene, this.data.scenes[scene_id]["img"])
       }
-      await save_painter.draw(cvs_work, ctx_work, frame_size, cardboard_size, hls, q_to_show, raw_quadrangle)
+      await save_painter.draw(cvs_work, ctx_work, frame_size, cardboard_size, hls, quadrangle_to_show, raw_quadrangle)
       save_painter.save()
     }
   },
@@ -323,7 +307,7 @@ Page({
     }, 1000);
   },
 
-  
+  // tools
 
   load_cvs_ctx_and_initial: function () {
     tools.load_ctx("#to_save", (cvs, ctx)=>{
@@ -364,10 +348,10 @@ Page({
 
   draw: function () {
     main_painter.clear()
-    if (tools.quadrangle_is_ready(q_to_show)) {
-      main_painter.draw_frame(q_to_show, frame_size, cardboard_size, hls)
+    if (tools.quadrangle_is_ready(quadrangle_to_show)) {
+      main_painter.draw_frame(quadrangle_to_show, frame_size, cardboard_size, hls)
       if (tools.in_pic_mode()) {
-        main_painter.draw_framed_image(q_to_show, raw_quadrangle)
+        main_painter.draw_framed_image(quadrangle_to_show, raw_quadrangle)
       }
     }
   },

@@ -43,3 +43,4 @@
 18. - 重构：onLoad, draw, save
     - 重构：tap_random_choose, 简单的按钮事件
     - 重构：在canvas上的滑动拖拽事件
+    - 重构：index.js

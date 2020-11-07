@@ -2,7 +2,6 @@ var cv
 var that
 var loaded_count = 0
 
-
 function set_cv(cv_input) {
     cv = cv_input
 }
@@ -206,6 +205,22 @@ function deep_copy(obj) {
     return JSON.parse(JSON.stringify(obj))
 }
 
+function choose_image() {
+    wx.chooseImage({
+        count: 1,
+        sizeType: ['compressed'],
+        sourceType: ['album', 'camera'],
+        success (res) {
+        const tempFilePath = res.tempFilePaths[0]
+        that.setData({
+            imageUrl: tempFilePath,
+            simple_crop_show: true,
+            mode: "pic"
+        })
+        }
+    })  
+}
+
 module.exports = {
     set_cv: set_cv,
     set_this: set_this,
@@ -227,5 +242,6 @@ module.exports = {
     in_pic_mode: in_pic_mode,
     random_choose: random_choose,
     get_default_quadrangle: get_default_quadrangle,
-    deep_copy: deep_copy
+    deep_copy: deep_copy,
+    choose_image: choose_image
 }
