@@ -163,15 +163,20 @@ Page({
       if (e.touches.length == 1) {
         if (moving_point_index !== false) {
           if (moving_point_index == move_mode) {
+            // 拖动
             var move_offset = move_tools.get_move_offset(e.touches[0])
             move_tools.move_shift(quadrangle_to_show, move_offset)
           } else {
+            // 拖拽角点
             var move_offset = move_tools.get_move_offset(e.touches[0])
             move_tools.point_shift(quadrangle_to_show, raw_quadrangle, move_offset, moving_point_index)
           }
         }
         } else {
+          // 缩放
           let scale_offset = move_tools.get_scale_offset(e.touches)
+          cardboard_size = move_tools.scale(quadrangle_to_show, scale_offset, cardboard_size)
+          frame_size = move_tools.scale(quadrangle_to_show, scale_offset, frame_size)
           move_tools.scale_shift(quadrangle_to_show, scale_offset)
         }
         this.draw()

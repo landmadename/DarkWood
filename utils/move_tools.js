@@ -90,6 +90,17 @@ function correct(points) {
   points[3].y = points[0].y
 }
 
+function scale(points, offset, size) {
+  var now_point_0 = {}, new_point_1 = {}
+  now_point_0.x = points[0].x - offset
+  now_point_0.y = points[0].y - offset
+  new_point_1.x = points[1].x - offset
+  new_point_1.y = points[1].y + offset
+  var raw_length = new Vector(points[0].x, points[0].y).subSelf(new Vector(points[1].x, points[1].y)).length()
+  var now_length = new Vector(now_point_0.x, now_point_0.y).subSelf(new Vector(new_point_1.x, new_point_1.y)).length()
+  return now_length/raw_length*size
+}
+
 module.exports = {
   get_touched_point_index: get_touched_point_index,
   get_move_offset: get_move_offset,
@@ -97,6 +108,7 @@ module.exports = {
   get_scale_offset: get_scale_offset,
   scale_shift: scale_shift,
   move_shift: move_shift,
+  scale: scale,
   correct: correct,
   point_shift: point_shift
 }
