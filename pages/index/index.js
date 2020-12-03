@@ -2,9 +2,11 @@ var wasm = require("../../utils/wasm");
 var detector = require("../../utils/detector");
 var tools = require("../../utils/tools")
 var move_tools = require("../../utils/move_tools")
+var stabilizer = require("../../utils/stabilizer")
 var main_painter = require("../../utils/main_painter");
 var scene_painter = require("../../utils/scene_painter");
 var save_painter = require("../../utils/save_painter");
+const { Pool } = require("../../utils/stabilizer");
 
 var cv;
 var listener;
@@ -76,7 +78,15 @@ Page({
     var that = this;
     var corners = [], mat, i = 1, scale, offset={};
     const number_of_frames_to_ignore = 6;
+    var pool = new Pool()
     var camera_ctx = wx.createCameraContext();
+    quadrangle = []
+    quadrangle_to_show = [
+      {x:0, y:0},
+      {x:0, y:this.data.canvas_size.height},
+      {x:this.data.canvas_size.width, y:this.data.canvas_size.height},
+      {x:this.data.canvas_size.width, y:0}
+    ]
 
     scene_painter.clear_scene()
     detector.clear_max_quadrangle()
@@ -94,12 +104,17 @@ Page({
         mat = tools.toMat(frame)
         // hls = detector.get_hls(mat)
         corners = detector.detect(mat, offset)
-        quadrangle = detector.get_max_quadrangle(corners)
-        quadrangle_to_show = tools.deep_copy(quadrangle)
-        tools.scale_points(quadrangle_to_show, scale, offset)
-        that.draw()
+        quadrangle = tools.deep_copy(detector.get_max_quadrangle(corners))
+        if (quadrangle.length != 0) {
+          tools.scale_points(quadrangle, scale, offset)
+          pool.insert(quadrangle)
+        }  
         mat.delete()
       }
+      if (quadrangle.length != 0) {
+        pool.shift_next_step(quadrangle_to_show, quadrangle)
+      }
+      that.draw()
     })
     listener.start()
     this.setData({
