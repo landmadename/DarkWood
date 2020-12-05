@@ -1,6 +1,7 @@
 var cv
 var that
 var loaded_count = 0
+const app = getApp()
 
 function set_cv(cv_input) {
     cv = cv_input
@@ -77,6 +78,7 @@ function load_frames(site) {
             that.setData({
                 frames: frames
             })
+            app.globalData.frames = frames
             loaded_count++
             check_and_set_patterns()
         }
@@ -125,6 +127,47 @@ function load_scenes(site) {
             check_and_set_patterns()
         }
     })
+}
+
+function load_album(site) {
+    wx.request({
+        url: site + "/api/v2/images/?limit=200",
+        method: 'GET',
+        success: function (result) {
+            result = result.data
+            var album = {}
+            for(let i in result.items){
+                album[result.items[i].id] = site + result.items[i].meta.download_url
+            }      
+            app.globalData.album = album
+        }
+    })
+}
+
+function parse_content(raw) {
+    var content = []
+    for (const i in raw) {
+        var type = raw[i]["type"]
+        if (type == "heading_block") {
+            content.push({
+                type: "heading",
+                value: raw[i]["value"]["heading_text"]
+            })
+        }
+        if (type == "paragraph_block") {
+            content.push({
+                type: "paragraph",
+                value: raw[i]["value"].replace(/<.*?>/g, "")
+            })
+        }
+        if (type == "image_block") {
+            content.push({
+                type: "image",
+                value: app.globalData.album[raw[i]["value"]["image"]]
+            })
+        }
+    }
+    return content
 }
 
 function check_and_set_patterns() {
@@ -201,6 +244,15 @@ function get_default_quadrangle() {
     ]
 }
 
+function get_default_quadrangle_to_show() {
+    return [
+        {x:0, y:0},
+        {x:0, y:that.data.canvas_size.height},
+        {x:that.data.canvas_size.width, y:that.data.canvas_size.height},
+        {x:that.data.canvas_size.width, y:0}
+    ]
+}
+
 function deep_copy(obj) {
     return JSON.parse(JSON.stringify(obj))
 }
@@ -242,6 +294,9 @@ module.exports = {
     in_pic_mode: in_pic_mode,
     random_choose: random_choose,
     get_default_quadrangle: get_default_quadrangle,
+    get_default_quadrangle_to_show: get_default_quadrangle_to_show,
     deep_copy: deep_copy,
-    choose_image: choose_image
+    choose_image: choose_image,
+    load_album: load_album,
+    parse_content: parse_content
 }

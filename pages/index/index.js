@@ -2,7 +2,6 @@ var wasm = require("../../utils/wasm");
 var detector = require("../../utils/detector");
 var tools = require("../../utils/tools")
 var move_tools = require("../../utils/move_tools")
-var stabilizer = require("../../utils/stabilizer")
 var main_painter = require("../../utils/main_painter");
 var scene_painter = require("../../utils/scene_painter");
 var save_painter = require("../../utils/save_painter");
@@ -81,12 +80,7 @@ Page({
     var pool = new Pool()
     var camera_ctx = wx.createCameraContext();
     quadrangle = []
-    quadrangle_to_show = [
-      {x:0, y:0},
-      {x:0, y:this.data.canvas_size.height},
-      {x:this.data.canvas_size.width, y:this.data.canvas_size.height},
-      {x:this.data.canvas_size.width, y:0}
-    ]
+    quadrangle_to_show = tools.get_default_quadrangle_to_show()
 
     scene_painter.clear_scene()
     detector.clear_max_quadrangle()
@@ -217,7 +211,7 @@ Page({
 
   tap_intro_button: function() {
     wx.navigateTo({
-      url: '../intro/intro',
+      url: '../intro/intro?frame_id=' + this.data.current_frame_id,
     })
   },
 
@@ -320,6 +314,7 @@ Page({
     tools.load_frames("http://47.99.244.218:8090")
     tools.load_cards ("http://47.99.244.218:8090")
     tools.load_scenes("http://47.99.244.218:8090")
+    tools.load_album ("http://47.99.244.218:8090")
     tools.set_canvas_size()
 
     setTimeout(() => {

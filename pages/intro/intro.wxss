@@ -1,1 +1,59 @@
-/* pages/intro/intro.wxss */
+page{
+  width: 100%;
+  height: 100%;
+  background-color: #381924;
+}
+.heading{
+  padding-left: 3vw;
+  cursor: text;
+  font-size: 6vw;
+}
+.heading{
+  margin: 6vw 3vw;
+  color: #82860e;
+  background-color: #ffe75e;
+  font-weight: bold;
+  border-radius: 5vw;
+}
+.heading:before {
+  border-radius: 50%;
+  background-color: #ffe75e;
+  content: '';
+  width: 4vw;
+  display: inline-block;
+  height: 4vw;
+  vertical-align: middle;
+  margin: 4vw;
+  margin-right: 5vw;
+  box-shadow: 0 0.5vw 0 #d3bb33, 0 -0.5vw 0 #fff4b4;
+}
+.paragraph{
+  margin: 6vw auto;
+  color: #616410;
+  padding: 1vw 3vw 1vw 3vw;
+  background-color: #ffe75e;
+  border-radius: 5vw;
+  font-size: 5vw;
+  width: 80vw;
+}
+
+.image{
+  margin: 6vw auto;
+  display: block;
+  border-top: 1vw solid #fff4b4;
+  border-left: 1vw solid #fff4b4;
+  border-right: 1vw solid #d3bb33;
+  border-bottom: 1vw solid #d3bb33;
+  width: 76vw;
+}
+
+.threeD{
+  box-shadow: 0vw  -1vw 0 #fff4b4,
+              -1vw -1vw 0 #fff4b4,
+              -1vw 0vw  0 #fff4b4,
+              0vw  1vw  0 #d3bb33, 
+              1vw  1vw  0 #d3bb33, 
+              1vw  0vw  0 #d3bb33, 
+              1vw  -1vw 0 #d3bb33, 
+              -1vw 1vw  0 #d3bb33;
+}

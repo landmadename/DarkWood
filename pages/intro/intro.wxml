@@ -1,2 +1,7 @@
 <!--pages/intro/intro.wxml-->
-<text>介绍页面</text>
+
+<block wx:for="{{content}}">
+  <view class="heading threeD" wx:if="{{item.type == 'heading'}}">{{item.value}}</view>
+  <view class="paragraph threeD" wx:if="{{item.type == 'paragraph'}}">{{item.value}}</view>
+  <image class="image" mode="widthFix" wx:if="{{item.type == 'image'}}" src="{{item.value}}"></image>
+</block>

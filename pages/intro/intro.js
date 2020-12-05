@@ -1,17 +1,26 @@
+const tools = require("../../utils/tools")
+const app = getApp()
+
 Page({
 
   /**
    * 页面的初始数据
    */
   data: {
-    
+
   },
 
   /**
    * 生命周期函数--监听页面加载
    */
   onLoad: function (options) {
-    
+    var frame_id = options["frame_id"]
+    var content = app.globalData.frames[frame_id]["content"]
+    content = tools.parse_content(content)
+    console.log(content)
+    this.setData({
+      content: content
+    })
   },
 
   /**
