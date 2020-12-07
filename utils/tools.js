@@ -72,7 +72,8 @@ function load_frames(site) {
                     prev: site + i.prev.meta.download_url,
                     bottom: site + i.bottom.meta.download_url,
                     top: site + i.top.meta.download_url,
-                    content: i.content
+                    content: i.content,
+                    history: i.history
                 }
             }); 
             that.setData({
@@ -142,6 +143,18 @@ function load_album(site) {
             app.globalData.album = album
         }
     })
+}
+
+function parse_history(raw) {
+    var history = []
+    for (const i in raw) {
+        console.log(i)
+        history.push({
+            image: app.globalData.album[raw[i]["value"]["image"]],
+            card_page: raw[i]["value"]["card_page"]
+        })
+    }
+    return history
 }
 
 function parse_content(raw) {
@@ -298,5 +311,6 @@ module.exports = {
     deep_copy: deep_copy,
     choose_image: choose_image,
     load_album: load_album,
-    parse_content: parse_content
+    parse_content: parse_content,
+    parse_history: parse_history
 }

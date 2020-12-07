@@ -1,11 +1,12 @@
-var wasm = require("../../utils/wasm");
-var detector = require("../../utils/detector");
-var tools = require("../../utils/tools")
-var move_tools = require("../../utils/move_tools")
-var main_painter = require("../../utils/main_painter");
-var scene_painter = require("../../utils/scene_painter");
-var save_painter = require("../../utils/save_painter");
+const wasm = require("../../utils/wasm");
+const detector = require("../../utils/detector");
+const tools = require("../../utils/tools")
+const move_tools = require("../../utils/move_tools")
+const main_painter = require("../../utils/main_painter");
+const scene_painter = require("../../utils/scene_painter");
+const save_painter = require("../../utils/save_painter");
 const { Pool } = require("../../utils/stabilizer");
+const app = getApp()
 
 var cv;
 var listener;
@@ -306,9 +307,21 @@ Page({
     }
   },
 
+  onShow: function () {
+    if (app.globalData.card_id != -1) {
+      card_id = app.globalData.card_id
+      this.set_patterns()
+      this.setData({
+        current_card_id: card_id
+      })  
+      app.globalData.card_id = -1
+    }
+  },
+
   onLoad: function () {
     wx.showLoading({title: '加载中'})
     
+    app.globalData.card_id = -1
     tools.set_this(this)
     this.load_cvs_ctx_and_initial()
     tools.load_frames("http://47.99.244.218:8090")

@@ -27,12 +27,14 @@ page{
   margin-right: 5vw;
   box-shadow: 0 0.5vw 0 #d3bb33, 0 -0.5vw 0 #fff4b4;
 }
+
+/* width: 86vw */
 .paragraph{
   margin: 6vw auto;
   color: #616410;
-  padding: 1vw 3vw 1vw 3vw;
-  background-color: #ffe75e;
-  border-radius: 5vw;
+  padding: 3vw;
+  background-color: #fff2a8;
+  border-radius: 1vw;
   font-size: 5vw;
   width: 80vw;
 }
@@ -40,11 +42,65 @@ page{
 .image{
   margin: 6vw auto;
   display: block;
-  border-top: 1vw solid #fff4b4;
-  border-left: 1vw solid #fff4b4;
-  border-right: 1vw solid #d3bb33;
-  border-bottom: 1vw solid #d3bb33;
-  width: 76vw;
+  padding: 3vw;
+  background-color: #fff2a8;
+  border-radius: 1vw;
+  width: 80vw;
+}
+
+.hist{
+  width: 83vw;
+  margin: 6vw auto;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.hist_img{
+  width: 50vw;
+  padding: 3vw;
+  background-color: #fff2a8;
+  border-radius: 3vw;
+  border-top-right-radius: 0;
+}
+
+.hist_button_background{
+  width: 27vw;
+  height: 13vw;
+  padding: 3vw 0 0 0;
+  background-color: #fff2a8;
+  border-radius: 3vw;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+.try_button{
+  margin-right: 3vw;
+  color: #82860e;
+  background-color: #ffe75e;
+  font-weight: bold;
+  border-radius: 3vw;
+  padding: 0;
+  width: 18vw;
+  text-align: center;
+  text-decoration: none;
+  line-height: 4vw;
+  padding: 3vw;
+}
+
+.reverse_radius{
+  background-color: #fff2a8;
+  height: 10vw;
+  width: 10vw;
+}
+
+.reverse_radius:after{
+  display: block;
+  content: " ";
+  background-color: #381924;
+  height: 10vw;
+  width: 10vw;
+  border-top-left-radius: 3vw;
 }
 
 .threeD{

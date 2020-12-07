@@ -1,7 +1,20 @@
 <!--pages/intro/intro.wxml-->
 
-<block wx:for="{{content}}">
+<block wx:for="{{content}}" wx:key="*this">
   <view class="heading threeD" wx:if="{{item.type == 'heading'}}">{{item.value}}</view>
-  <view class="paragraph threeD" wx:if="{{item.type == 'paragraph'}}">{{item.value}}</view>
-  <image class="image" mode="widthFix" wx:if="{{item.type == 'image'}}" src="{{item.value}}"></image>
+  <view class="paragraph" wx:if="{{item.type == 'paragraph'}}">{{item.value}}</view>
+  <image class="image" mode="widthFix" wx:if="{{item.type == 'image'}}" src="{{item.value}}" bindtap="prev_img" data-src="{{item.value}}"></image>
+</block>
+
+<view class="heading threeD" wx:if="{{true}}}">往期作品</view>
+<block wx:for="{{history}}" wx:key="*this">
+  <view class="hist">
+    <image class="hist_img" mode="widthFix" src="{{item.image}}" bindtap="prev_img" data-src="{{item.image}}"></image>
+    <view>
+      <view class="hist_button_background">
+        <view class="try_button threeD" bindtap="try_collocation" data-card_page="{{item.card_page}}">试试搭配</view>
+      </view>
+      <view class="reverse_radius"></view>
+    </view>
+  </view>
 </block>
