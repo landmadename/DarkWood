@@ -242,7 +242,7 @@ function random_choose(type) {
     } else if (type == "cards") {
         e = {currentTarget: {dataset: {card_id: randomElement}}}
         that.tap_to_change_card(e)
-    } else if (type == "scenes" && scene_id != randomElement) {
+    } else if (type == "scenes") {
         e = {currentTarget: {dataset: {scene_id: randomElement}}}
         that.tap_to_change_scene(e)
     }
@@ -286,6 +286,36 @@ function choose_image() {
     })  
 }
 
+function find_closest_by_value(obj, num) {
+    var index = 0;
+    var d_value = Number.MAX_VALUE;
+    for (var i in obj) {
+        var new_d_value = Math.abs(obj[i] - num);
+        if (new_d_value <= d_value) {
+            if (new_d_value === d_value && obj[i] < obj[index]) {
+                continue;
+            }
+            index = i;
+            d_value = new_d_value;
+        }
+    }
+    return index 
+}
+
+function set_frame(frame_id) {
+    that.setData({
+        current_frame_id: frame_id
+    })
+    that.set_patterns()
+}
+
+function set_card(card_id) {
+    that.setData({
+        current_card_id: card_id
+    })
+    that.set_patterns()
+}
+
 module.exports = {
     set_cv: set_cv,
     set_this: set_this,
@@ -312,5 +342,8 @@ module.exports = {
     choose_image: choose_image,
     load_album: load_album,
     parse_content: parse_content,
-    parse_history: parse_history
+    parse_history: parse_history,
+    find_closest_by_value: find_closest_by_value,
+    set_frame: set_frame,
+    set_card: set_card
 }

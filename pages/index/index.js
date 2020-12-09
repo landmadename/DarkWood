@@ -19,6 +19,10 @@ var quadrangle_to_show, raw_quadrangle;
 var frame_size=40, cardboard_size=30;
 var frame_id=4, card_id=6, scene_id=-1;
 var moving_point_index = false;
+var frames_hue = {
+  4: 101.70258620689656,
+  9: 78.81306818181818
+}
 var hls;
 
 const without_scene = -1;
@@ -216,6 +220,14 @@ Page({
     })
   },
 
+  intelligent_recommend: function () {
+    var that = this
+    cv.imread(this.data.croped_image, function(mat) {
+      hue = detector.get_hls(mat)[0]
+      that.tap_to_change_frame({currentTarget: {dataset: {frame_id: tools.find_closest_by_value(frames_hue, hue)}}})
+    })
+  },
+
   tap_random_choose: function (e) {
     var type = e.currentTarget.dataset.type
     if (type == "frames_and_cards") {
@@ -237,33 +249,18 @@ Page({
 
   tap_to_change_frame: function(e) {
     frame_id = parseInt(e.currentTarget.dataset.frame_id)
-    this.setData({
-      current_frame_id: frame_id
-    })
-    this.set_patterns()
+    tools.set_frame(frame_id)
   },
 
   tap_to_change_card: function(e) {
     card_id = parseInt(e.currentTarget.dataset.card_id)
-    this.setData({
-      current_card_id: card_id
-    })
-    this.set_patterns()
+    tools.set_card(card_id)
   },
 
   tap_to_change_scene: function(e) {
     if (tools.in_pic_mode()) {
       var new_scene_id = parseInt(e.currentTarget.dataset.scene_id)
-      if (scene_id != new_scene_id) {
-        scene_id = new_scene_id
-        scene_painter.set_scene(this.data.scenes[scene_id]["img"], quadrangle_to_show)
-      } else {
-        scene_id = -1
-        scene_painter.clear_scene()
-      }
-      this.setData({
-        current_scene_id: scene_id
-      })
+      this.set_scene(new_scene_id)
     }
   },
 
@@ -273,16 +270,12 @@ Page({
       success (res) {
         var data = JSON.parse(res.result)
         var type = Object.keys(data)[0]
-        var e = {}
         if (type == "frames") {
-          e = {currentTarget: {dataset: {frame_id: data["frames"]}}}
-          that.tap_to_change_frame(e)
+          tools.set_frame(data["frames"])
         } else if (type == "cards") {
-          e = {currentTarget: {dataset: {card_id: data["card"]}}}
-          that.tap_to_change_card(e)
+          tools.set_card(data["frames"])
         } else if (type == "scenes") {
-          e = {currentTarget: {dataset: {scene_id: data["scene"]}}}
-          that.tap_to_change_scene(e)
+          that.set_scene(data["scenes"])
         }
       }
     })
@@ -374,6 +367,33 @@ Page({
     )
   },
 
+  set_frame: function (frame_id) {
+    this.setData({
+      current_frame_id: frame_id
+    })
+    this.set_patterns()
+  },
+
+  set_card: function (card_id) {
+    this.setData({
+      current_card_id: card_id
+    })
+    this.set_patterns()
+  },
+
+  set_scene: function (new_scene_id) {
+    if (scene_id != new_scene_id) {
+      scene_id = new_scene_id
+      scene_painter.set_scene(this.data.scenes[scene_id]["img"], quadrangle_to_show)
+    } else {
+      scene_id = -1
+      scene_painter.clear_scene()
+    }
+    this.setData({
+      current_scene_id: scene_id
+    })
+  },
+
   draw: function () {
     main_painter.clear()
     if (tools.quadrangle_is_ready(quadrangle_to_show)) {
@@ -383,5 +403,4 @@ Page({
       }
     }
   },
-  
 })
