@@ -19,6 +19,7 @@ var quadrangle_to_show, raw_quadrangle;
 var frame_size=40, cardboard_size=30;
 var frame_id=4, card_id=6, scene_id=-1;
 var moving_point_index = false;
+var custom_scene;
 var frames_hue = {
   4: 101.70258620689656,
   9: 78.81306818181818
@@ -129,34 +130,49 @@ Page({
   },
 
   close_crop: function() {
-    this.setData({
-      simple_crop_show: false,
-      mode: 'AR'
-    })
+    if (this.data.setting_custom_scene == true) {
+      this.setData({
+        simple_crop_show: false,
+        setting_custom_scene: false
+      })
+    } else {
+      this.setData({
+        simple_crop_show: false,
+        mode: 'AR'
+      })
+    }
   },
 
   crop_complete: function(e) {
-    var that = this
-
-    main_painter.set_croped_image(e.detail.resultSrc)
-    this.setData({
-      croped_image: e.detail.resultSrc,
-      simple_crop_show: false
-    })
-    cv.imread(e.detail.resultSrc, function(mat) {
-      // hls = detector.get_hls(mat)
-      corners = detector.detect(mat)
-      if (corners.length < 4) {
-        quadrangle_to_show = tools.get_default_quadrangle()
-      } else {
-        quadrangle = detector.get_max_quadrangle(corners)
-        quadrangle_to_show = tools.deep_copy(quadrangle)
-        tools.scale_points(quadrangle_to_show, 1/dpr, {x:0, y:0})
-      }
-      raw_quadrangle = tools.deep_copy(quadrangle_to_show)
-      that.draw()
-      mat.delete()
-    })
+    if (this.data.setting_custom_scene == true) {
+      this.setData({
+        simple_crop_show: false,
+        setting_custom_scene: false
+      })
+      custom_scene = e.detail.resultSrc
+      this.set_scene(-1)
+    } else {
+      var that = this
+      main_painter.set_croped_image(e.detail.resultSrc)
+      this.setData({
+        croped_image: e.detail.resultSrc,
+        simple_crop_show: false
+      })
+      cv.imread(e.detail.resultSrc, function(mat) {
+        // hls = detector.get_hls(mat)
+        corners = detector.detect(mat)
+        if (corners.length < 4) {
+          quadrangle_to_show = tools.get_default_quadrangle()
+        } else {
+          quadrangle = detector.get_max_quadrangle(corners)
+          quadrangle_to_show = tools.deep_copy(quadrangle)
+          tools.scale_points(quadrangle_to_show, 1/dpr, {x:0, y:0})
+        }
+        raw_quadrangle = tools.deep_copy(quadrangle_to_show)
+        that.draw()
+        mat.delete()
+      })
+    }
   },
 
   // touch and swipe on canvas
@@ -226,6 +242,15 @@ Page({
       hue = detector.get_hls(mat)[0]
       that.tap_to_change_frame({currentTarget: {dataset: {frame_id: tools.find_closest_by_value(frames_hue, hue)}}})
     })
+  },
+
+  tap_camera: function () {
+    if (tools.in_pic_mode()){
+      tools.choose_image()
+      this.setData({
+        setting_custom_scene: true
+      })
+    }
   },
 
   tap_random_choose: function (e) {
@@ -382,7 +407,9 @@ Page({
   },
 
   set_scene: function (new_scene_id) {
-    if (scene_id != new_scene_id) {
+    if (new_scene_id == -1) {
+      scene_painter.set_scene(custom_scene,quadrangle_to_show)
+    } else if (scene_id != new_scene_id) {
       scene_id = new_scene_id
       scene_painter.set_scene(this.data.scenes[scene_id]["img"], quadrangle_to_show)
     } else {

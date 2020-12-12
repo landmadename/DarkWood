@@ -49,7 +49,7 @@
       </view>
       <!-- 卡纸选择面板 -->
       <view class="choose_panel" wx:if="{{current_choose_panel==1}}">
-        <view class="panel_button">
+        <view class="panel_button" bindtap="scan_code">
           <view class="qr_icon"></view>
         </view>
         <scroll-view scroll-x="true" class="choices_container" enable-flex="true">
@@ -64,8 +64,8 @@
       </view>
       <!-- 场景选择面板 -->
       <view class="choose_panel" wx:if="{{current_choose_panel==2}}">
-        <view class="panel_button">
-          <view class="qr_icon"></view>
+        <view class="panel_button" bindtap="tap_camera">
+          <view class="camera_icon"></view>
         </view>
         <scroll-view scroll-x="true" class="choices_container" enable-flex="true">
           <view class="panel_button" style="display: inline-block;" bindtap="tap_random_choose" data-type="scenes">
@@ -74,7 +74,7 @@
           <view class="panel_button" style="display: inline-block;" data-scene_id="{{transparent_scene_id}}" bindtap="tap_to_change_scene">
             <view class="transparent_icon"></view>
           </view>
-          <view wx:for="{{scenes}}" wx:key="*this" class="choice_box" wx:if="{{item.id != transparent_scene_id}}">
+          <view wx:for="{{scenes}}" wx:key="*this" class="choice_box" wx:if="{{item.id != transparent_scene_id && item.id != -1}}">
             <view class="chosen_mark" data-choosen="{{current_scene_id == item.id}}"></view>
             <image class="choice_img" src="{{item.prev}}" data-scene_id="{{item.id}}" bindtap="tap_to_change_scene"></image>
           </view>

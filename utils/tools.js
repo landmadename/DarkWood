@@ -273,7 +273,7 @@ function deep_copy(obj) {
 function choose_image() {
     wx.chooseImage({
         count: 1,
-        sizeType: ['compressed'],
+        sizeType: ['original'],
         sourceType: ['album', 'camera'],
         success (res) {
         const tempFilePath = res.tempFilePaths[0]
