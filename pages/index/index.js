@@ -1,11 +1,11 @@
-const wasm = require("../../utils/wasm");
-const detector = require("../../utils/detector");
+// const wasm = require("../../utils/wasm");
+// const detector = require("../../utils/detector");
 const tools = require("../../utils/tools")
 const move_tools = require("../../utils/move_tools")
 const main_painter = require("../../utils/main_painter");
 const scene_painter = require("../../utils/scene_painter");
 const save_painter = require("../../utils/save_painter");
-const { Pool } = require("../../utils/stabilizer");
+// const { Pool } = require("../../utils/stabilizer");
 const app = getApp()
 
 var cv;
@@ -72,7 +72,7 @@ Page({
         cv=Module;
         detector.init(cv);
         tools.set_cv(cv);
-        that.to_AR();
+        // that.to_AR();
       }
     })
   },
@@ -158,19 +158,23 @@ Page({
         croped_image: e.detail.resultSrc,
         simple_crop_show: false
       })
-      cv.imread(e.detail.resultSrc, function(mat) {
-        // hls = detector.get_hls(mat)
-        corners = detector.detect(mat)
-        if (corners.length < 4) {
-          quadrangle_to_show = tools.get_default_quadrangle()
-        } else {
-          quadrangle = detector.get_max_quadrangle(corners)
+
+      wx.uploadFile({
+        url: 'http://47.99.244.218:8010/',
+        filePath: e.detail.resultSrc,
+        name: 'file',
+        formData: {
+          'type': 'pic'
+        },
+        success (e){
+          quadrangle = JSON.parse(e.data)
           quadrangle_to_show = tools.deep_copy(quadrangle)
-          tools.scale_points(quadrangle_to_show, 1/dpr, {x:0, y:0})
+          raw_quadrangle = tools.deep_copy(quadrangle_to_show)
+          that.draw()
+        },
+        complete(e){
+          // console.log(e)
         }
-        raw_quadrangle = tools.deep_copy(quadrangle_to_show)
-        that.draw()
-        mat.delete()
       })
     }
   },
@@ -337,7 +341,7 @@ Page({
   },
 
   onLoad: function () {
-    wx.showLoading({title: '加载中'})
+    // wx.showLoading({title: '加载中'})
     
     app.globalData.card_id = -1
     tools.set_this(this)
@@ -349,7 +353,7 @@ Page({
     tools.set_canvas_size()
 
     setTimeout(() => {
-      this.getwasm()
+      // this.getwasm()
     }, 1000);
   },
 

@@ -81,19 +81,19 @@
         </scroll-view>
       </view>
       <!-- 模式选择面板 -->
-      <view class="choose_panel" wx:if="{{current_choose_panel==3}}">
+      <!-- <view class="choose_panel" wx:if="{{current_choose_panel==3}}">
         <view class="panel_button" bindtap="to_AR">
           <view class="AR_icon"></view>
         </view>
         <view class="panel_button" bindtap="to_pic">
           <view class="pic_icon"></view>
         </view>
-      </view>
+      </view> -->
       <!-- 保存选择面板 -->
       <view class="choose_panel" wx:if="{{current_choose_panel==4}}">
-        <view class="panel_button" bindtap="intelligent_recommend">
+        <!-- <view class="panel_button" bindtap="intelligent_recommend">
           <view class="idea_icon"></view>
-        </view>
+        </view> -->
         <view class="panel_button" bindtap="tap_random_choose" data-type="frames_and_cards">
           <view class="dice_icon"></view>
         </view>
@@ -128,9 +128,9 @@
         <view class="scene_icon icon"></view>
         <text>场景</text>
       </view>
-      <view class="mode menu_item" bindtap="tap_to_change_choose_panel" data-panel_id="3">
-        <view class="mode_icon icon"></view>
-        <text>模式</text>
+      <view class="mode menu_item" bindtap="to_pic" data-panel_id="3">
+        <view class="pic_white_icon icon"></view>
+        <text>选图</text>
       </view>
       <view class="save menu_item" bindtap="tap_to_change_choose_panel" data-panel_id="4">
         <view class="save_icon icon"></view>
