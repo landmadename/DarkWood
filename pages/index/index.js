@@ -173,7 +173,7 @@ Page({
           that.draw()
         },
         complete(e){
-          // console.log(e)
+          console.log(e)
         }
       })
     }
