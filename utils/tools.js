@@ -187,7 +187,7 @@ function check_and_set_patterns() {
     if (loaded_count == 3) {
         setTimeout(() => {
             that.set_patterns()
-        }, 500);
+        }, 2000);
     }
 }
 

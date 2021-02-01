@@ -1,5 +1,5 @@
 // const wasm = require("../../utils/wasm");
-// const detector = require("../../utils/detector");
+const detector = require("../../utils/detector");
 const tools = require("../../utils/tools")
 const move_tools = require("../../utils/move_tools")
 const main_painter = require("../../utils/main_painter");
@@ -144,6 +144,11 @@ Page({
   },
 
   crop_complete: function(e) {
+    scene_painter.clear_scene()
+    scene_id = -1
+    this.setData({
+      current_scene_id: scene_id
+    })
     if (this.data.setting_custom_scene == true) {
       this.setData({
         simple_crop_show: false,
@@ -167,7 +172,7 @@ Page({
           'type': 'pic'
         },
         success (e){
-          quadrangle = JSON.parse(e.data)
+          quadrangle = detector.get_max_quadrangle(JSON.parse(e.data))
           quadrangle_to_show = tools.deep_copy(quadrangle)
           raw_quadrangle = tools.deep_copy(quadrangle_to_show)
           that.draw()
@@ -211,6 +216,7 @@ Page({
           let scale_offset = move_tools.get_scale_offset(e.touches)
           cardboard_size = move_tools.scale(quadrangle_to_show, scale_offset, cardboard_size)
           frame_size = move_tools.scale(quadrangle_to_show, scale_offset, frame_size)
+          // console.log(scale_offset, cardboard_size, frame_size)
           move_tools.scale_shift(quadrangle_to_show, scale_offset)
         }
         this.draw()
@@ -226,12 +232,14 @@ Page({
   // operate handler
   
   slider_change: function(e) {
-    if (this.data.current_choose_panel == 0) {
-      frame_size = e.detail.value
-    } else if (this.data.current_choose_panel == 1){
-      cardboard_size = e.detail.value
+    if (e.detail.value != 0){
+      if (this.data.current_choose_panel == 0) {
+        frame_size = e.detail.value
+      } else if (this.data.current_choose_panel == 1){
+        cardboard_size = e.detail.value
+      }
+      this.draw()  
     }
-    this.draw()
   },
 
   tap_intro_button: function() {

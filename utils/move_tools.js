@@ -98,6 +98,8 @@ function scale(points, offset, size) {
   new_point_1.y = points[1].y + offset
   var raw_length = new Vector(points[0].x, points[0].y).subSelf(new Vector(points[1].x, points[1].y)).length()
   var now_length = new Vector(now_point_0.x, now_point_0.y).subSelf(new Vector(new_point_1.x, new_point_1.y)).length()
+  console.log(points, points[0], points[1])
+  console.log(raw_length, now_length, size)
   return now_length/raw_length*size
 }
 
