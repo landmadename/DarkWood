@@ -52,7 +52,7 @@ function load_ctx(id, setData) {
 
 function load_data() {
     wx.request({
-        url: 'http://47.99.244.218:8090/api/v2/pages/?type=frame.FramePage&fields=*',
+        url: 'https://backendofdarkwood.lamony.cn/api/v2/pages/?type=frame.FramePage&fields=*',
         method: 'GET',
         success: function (res) {
             console.log(res)

@@ -4,7 +4,7 @@
     "ignore": []
   },
   "setting": {
-    "urlCheck": false,
+    "urlCheck": true,
     "es6": false,
     "postcss": true,
     "preloadBackgroundData": false,
@@ -36,7 +36,7 @@
     "minifyWXSS": true
   },
   "compileType": "miniprogram",
-  "libVersion": "2.12.1",
+  "libVersion": "2.14.4",
   "appid": "wx41efc1ed4e8f2180",
   "projectname": "DarkWood",
   "debugOptions": {
