@@ -43,7 +43,7 @@
           </view>
           <view wx:for="{{frames}}" wx:key="*this" class="choice_box">
             <view class="chosen_mark" data-choosen="{{current_frame_id == item.id}}"></view>
-            <image class="choice_img" style="border-radius: 0vw" src="{{item.prev}}" data-frame_id="{{item.id}}" bindtap="tap_to_change_frame"></image>
+            <image class="choice_img" style="border-radius: 0vw" src="{{item.prev}}" data-frame_id="{{item.id}}" bindtap="tap_to_change_frame" bindlongpress="long_press_to_frame"></image>
           </view>
         </scroll-view>
       </view>

@@ -52,7 +52,7 @@ function draw_framed_image(quadrangle, raw_quadrangle) {
   var idot3 = raw_quadrangle[2]
   var idot4 = raw_quadrangle[3]
 
-  renderFramedImage(idot3, dot3, idot2, dot2, idot4, dot4, idot1);
+  renderFramedImage(idot3, dot3, idot2, {x:dot2.x-0.1, y:dot2.y}, idot4, {x:dot4.x, y:dot4.y-0.1}, idot1);
   renderFramedImage(idot1, dot1, idot2, dot2, idot4, dot4, idot1);
 }
 

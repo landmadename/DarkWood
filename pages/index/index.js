@@ -306,6 +306,10 @@ Page({
     }
   },
 
+  long_press_to_frame: function(e) {
+    console.log(e)
+  },
+
   scan_code: function () {
     var that = this
     wx.scanCode({
