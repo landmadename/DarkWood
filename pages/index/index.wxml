@@ -37,12 +37,12 @@
         <view class="panel_button" bindtap="scan_code">
           <view class="qr_icon"></view>
         </view>
-        <scroll-view scroll-x="true" class="choices_container" enable-flex="true">
+        <view class="panel_button" style="display: inline-block;" bindtap="tap_ruler">
+            <view class="ruler_icon"></view>
+        </view>
+        <scroll-view scroll-x="true" class="choices_container" enable-flex="true" style="width:60vw">
           <view class="panel_button" style="display: inline-block;" bindtap="tap_random_choose" data-type="frames">
             <view class="dice_icon"></view>
-          </view>
-          <view class="panel_button" style="display: inline-block;" bindtap="tap_ruler">
-            <view class="ruler_icon"></view>
           </view>
           <view wx:for="{{frames}}" wx:key="*this" class="choice_box">
             <view class="chosen_mark" data-choosen="{{current_frame_id == item.id}}"></view>

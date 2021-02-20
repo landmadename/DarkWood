@@ -107,8 +107,9 @@ function scale(offset, size) {
 }
 
 function get_pic_width(points) {
-  var raw_length = new Vector(points[0].x, points[0].y).subSelf(new Vector(points[1].x, points[1].y)).length()
-  return raw_length
+  var raw_length1 = new Vector(points[0].x, points[0].y).subSelf(new Vector(points[3].x, points[3].y)).length()
+  var raw_length2 = new Vector(points[1].x, points[1].y).subSelf(new Vector(points[2].x, points[2].y)).length()
+  return (raw_length1 + raw_length2)/2
 }
 
 module.exports = {
