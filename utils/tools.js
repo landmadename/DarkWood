@@ -72,6 +72,7 @@ function load_frames(site) {
                     prev: site + i.prev.meta.download_url,
                     bottom: site + i.bottom.meta.download_url,
                     top: site + i.top.meta.download_url,
+                    width: i.width,
                     content: i.content,
                     history: i.history
                 }

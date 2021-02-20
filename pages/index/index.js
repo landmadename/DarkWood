@@ -306,8 +306,40 @@ Page({
     }
   },
 
-  long_press_to_frame: function(e) {
-    console.log(e)
+  tap_ruler: function(e) {
+    var that = this
+    wx.showModal({
+      title: '真实比例模式',
+      editable:  true,
+      placeholderText: '输入作品的实际宽度(厘米)，如：100',
+      success (res) {
+        if (res.confirm) {
+          real_pic_width = parseFloat(res.content)
+          if (real_pic_width) {
+            real_frame_width = that.data.frames[frame_id]["width"]
+            if (real_frame_width != null) {
+              pic_width = move_tools.get_pic_width(quadrangle_to_show)
+              frame_size = pic_width*real_frame_width/real_pic_width
+              that.draw()
+            } else {
+              wx.showToast({
+                title: '当前框条宽度并未设置，请通知管理员',
+                icon: 'none',
+                duration: 2000
+              })
+            }  
+          } else {
+            wx.showToast({
+              title: '请输入数字哦',
+              icon: 'error',
+              duration: 2000
+            })
+          }
+        } else if (res.cancel) {
+          console.log('用户点击取消')
+        }
+      }
+    })
   },
 
   scan_code: function () {

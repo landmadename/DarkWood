@@ -106,6 +106,11 @@ function scale(offset, size) {
   return size*(1 + direction*0.01)
 }
 
+function get_pic_width(points) {
+  var raw_length = new Vector(points[0].x, points[0].y).subSelf(new Vector(points[1].x, points[1].y)).length()
+  return raw_length
+}
+
 module.exports = {
   get_touched_point_index: get_touched_point_index,
   get_move_offset: get_move_offset,
@@ -115,5 +120,6 @@ module.exports = {
   move_shift: move_shift,
   scale: scale,
   correct: correct,
-  point_shift: point_shift
+  point_shift: point_shift,
+  get_pic_width: get_pic_width
 }
