@@ -188,7 +188,7 @@ function renderImage(arg_1, _arg_1, arg_2, _arg_2, arg_3, _arg_3, vertex, type, 
   for (let i = 0; i < cvs.width/pattern_width*1.3; i++) {
     ctx.translate(pattern_width, 0);
     // ctx.globalCompositeOperation = "source-over"
-    ctx.drawImage(img, 0, 0, img.width, img.height,0 ,0 ,pattern_width , pattern_height)
+    ctx.drawImage(img, 0, 0, img.width, img.height,0 ,0 ,pattern_width+1 , pattern_height)
     // ctx.globalCompositeOperation = "luminosity"
     // ctx.fillStyle = "hsl(0,100%,"+lightness/255*100+"%,1%)"
     // ctx.fillRect(0,0,1000,1000);

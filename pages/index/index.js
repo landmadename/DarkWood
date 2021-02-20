@@ -219,8 +219,8 @@ Page({
         } else {
           // 缩放
           let scale_offset = move_tools.get_scale_offset(e.touches)
-          cardboard_size = move_tools.scale(quadrangle_to_show, scale_offset, cardboard_size)
-          frame_size = move_tools.scale(quadrangle_to_show, scale_offset, frame_size)
+          cardboard_size = move_tools.scale(scale_offset, cardboard_size)
+          frame_size = move_tools.scale(scale_offset, frame_size)
           // console.log(scale_offset, cardboard_size, frame_size)
           move_tools.scale_shift(quadrangle_to_show, scale_offset)
         }

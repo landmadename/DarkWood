@@ -1,4 +1,5 @@
 var Vector = require('vector2js');
+var lineTools = require("./lineTools");
 
 const radius = 35
 const move_mode = -1;
@@ -49,14 +50,24 @@ function get_scale_offset(points) {
 }
 
 function scale_shift(points, offset) {
-  points[0].x -= offset
-  points[0].y -= offset
-  points[1].x -= offset
-  points[1].y += offset
-  points[2].x += offset
-  points[2].y += offset
-  points[3].x += offset
-  points[3].y -= offset
+  var direction = (offset>0 ? 1:-1)
+  var center = lineTools.getAllIntersections([
+    { startPoint:points[0], endPoint:points[2] },
+    { startPoint:points[1], endPoint:points[3] }
+  ])
+  var v0c = new Vector(points[0].x, points[0].y).subSelf(new Vector(center[0].x, center[0].y)).mulScalarSelf(direction*0.01)
+  var v1c = new Vector(points[1].x, points[1].y).subSelf(new Vector(center[0].x, center[0].y)).mulScalarSelf(direction*0.01)
+  var v2c = new Vector(points[2].x, points[2].y).subSelf(new Vector(center[0].x, center[0].y)).mulScalarSelf(direction*0.01)
+  var v3c = new Vector(points[3].x, points[3].y).subSelf(new Vector(center[0].x, center[0].y)).mulScalarSelf(direction*0.01)
+  // offset = 1
+  points[0].x += v0c.x
+  points[0].y += v0c.y
+  points[1].x += v1c.x
+  points[1].y += v1c.y
+  points[2].x += v2c.x
+  points[2].y += v2c.y
+  points[3].x += v3c.x
+  points[3].y += v3c.y
 }
 
 function move_shift(points, offset) {
@@ -90,17 +101,9 @@ function correct(points) {
   points[3].y = points[0].y
 }
 
-function scale(points, offset, size) {
-  var now_point_0 = {}, new_point_1 = {}
-  now_point_0.x = points[0].x - offset
-  now_point_0.y = points[0].y - offset
-  new_point_1.x = points[1].x - offset
-  new_point_1.y = points[1].y + offset
-  var raw_length = new Vector(points[0].x, points[0].y).subSelf(new Vector(points[1].x, points[1].y)).length()
-  var now_length = new Vector(now_point_0.x, now_point_0.y).subSelf(new Vector(new_point_1.x, new_point_1.y)).length()
-  console.log(points, points[0], points[1])
-  console.log(raw_length, now_length, size)
-  return now_length/raw_length*size
+function scale(offset, size) {
+  var direction = (offset>0 ? 1:-1)
+  return size*(1 + direction*0.01)
 }
 
 module.exports = {
