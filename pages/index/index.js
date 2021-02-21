@@ -17,7 +17,7 @@ var cvs_save, ctx_save;
 
 var quadrangle_to_show, raw_quadrangle;
 var frame_size=40, cardboard_size=30;
-var frame_id=4, card_id=6, scene_id=-1;
+var frame_id=20, card_id=6, scene_id=-1;
 var moving_point_index = false;
 var custom_scene;
 var frames_hue = {
@@ -348,12 +348,16 @@ Page({
       success (res) {
         var data = JSON.parse(res.result)
         var type = Object.keys(data)[0]
+        console.log( data, type)
         if (type == "frames") {
-          tools.set_frame(data["frames"])
+          frame_id = data["frames"]
+          tools.set_frame(frame_id)
         } else if (type == "cards") {
-          tools.set_card(data["frames"])
+          card_id = data["cards"]
+          tools.set_card(card_id)
         } else if (type == "scenes") {
-          that.set_scene(data["scenes"])
+          new_scene_id = data["scenes"]
+          that.set_scene(new_scene_id)
         }
       }
     })
