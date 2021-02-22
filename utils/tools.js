@@ -52,7 +52,7 @@ function load_ctx(id, setData) {
 
 function load_data() {
     wx.request({
-        url: 'https://backendofdarkwood.lamony.cn/api/v2/pages/?type=frame.FramePage&fields=*',
+        url: 'https://backendofdarkwood.lamony.cn/api/v2/pages/?type=frame.FramePage&fields=*&limit=500',
         method: 'GET',
         success: function (res) {
             console.log(res)
@@ -62,7 +62,7 @@ function load_data() {
 
 function load_frames(site) {
     wx.request({
-        url: site + '/api/v2/pages/?type=frame.FramePage&fields=*',
+        url: site + '/api/v2/pages/?type=frame.FramePage&fields=*&limit=500',
         method: 'GET',
         success: function (res) {
             var frames = {}
@@ -89,7 +89,7 @@ function load_frames(site) {
 
 function load_cards(site) {
     wx.request({
-        url: site + '/api/v2/pages/?type=frame.CardPage&fields=*',
+        url: site + '/api/v2/pages/?type=frame.CardPage&fields=*&limit=500',
         method: 'GET',
         success: function (res) {
             var cards = {}
@@ -111,7 +111,7 @@ function load_cards(site) {
 
 function load_scenes(site) {
     wx.request({
-        url: site + '/api/v2/pages/?type=frame.ScenePage&fields=*',
+        url: site + '/api/v2/pages/?type=frame.ScenePage&fields=*&limit=500',
         method: 'GET',
         success: function (res) {
             var scenes = {}
@@ -133,7 +133,7 @@ function load_scenes(site) {
 
 function load_album(site) {
     wx.request({
-        url: site + "/api/v2/images/?limit=200",
+        url: site + "/api/v2/images/?limit=500",
         method: 'GET',
         success: function (result) {
             result = result.data
