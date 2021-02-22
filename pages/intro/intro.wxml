@@ -2,7 +2,11 @@
 
 <block wx:for="{{content}}" wx:key="*this">
   <view class="heading threeD" wx:if="{{item.type == 'heading'}}">{{item.value}}</view>
-  <view class="paragraph" wx:if="{{item.type == 'paragraph'}}">{{item.value}}</view>
+  <view class="paragraph" wx:if="{{item.type == 'paragraph'}}">
+    <block wx:for="{{item.value}}" wx:key="*this" wx:for-item="content">
+      <view>{{content}}</view>
+    </block>
+  </view>
   <image class="image" mode="widthFix" wx:if="{{item.type == 'image'}}" src="{{item.value}}" bindtap="prev_img" data-src="{{item.value}}"></image>
 </block>
 

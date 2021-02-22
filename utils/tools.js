@@ -169,9 +169,16 @@ function parse_content(raw) {
             })
         }
         if (type == "paragraph_block") {
+            var paragraph = raw[i]["value"]
+            var reg = /<p>(.*?)<\/p>/g
+            var paragraph_list = []
+            var res = ""
+            while (res = reg.exec(paragraph)) {
+                paragraph_list.push(res[1])
+            }
             content.push({
                 type: "paragraph",
-                value: raw[i]["value"].replace(/<.*?>/g, "")
+                value: paragraph_list
             })
         }
         if (type == "image_block") {
