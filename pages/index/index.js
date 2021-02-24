@@ -16,7 +16,7 @@ var cvs_work, ctx_work;
 var cvs_save, ctx_save;
 
 var quadrangle_to_show, raw_quadrangle;
-var frame_size=40, cardboard_size=30;
+var frame_size=40, cardboard_x_size=30, cardboard_y_size=30;
 var frame_id=20, card_id=6, scene_id=-1;
 var moving_point_index = false;
 var custom_scene;
@@ -242,6 +242,11 @@ Page({
         frame_size = e.detail.value
       } else if (this.data.current_choose_panel == 1){
         cardboard_size = e.detail.value
+        if (e.currentTarget.dataset.card_direction=="x") {
+          cardboard_x_size = e.detail.value
+        } else {
+          cardboard_y_size = e.detail.value
+        }
       }
       this.draw()  
     }
@@ -481,7 +486,7 @@ Page({
   draw: function () {
     main_painter.clear()
     if (tools.quadrangle_is_ready(quadrangle_to_show)) {
-      main_painter.draw_frame(quadrangle_to_show, frame_size, cardboard_size, hls)
+      main_painter.draw_frame(quadrangle_to_show, frame_size, cardboard_x_size, cardboard_y_size, hls)
       if (tools.in_pic_mode()) {
         main_painter.draw_framed_image(quadrangle_to_show, raw_quadrangle)
       }

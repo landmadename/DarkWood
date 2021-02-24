@@ -72,18 +72,64 @@ function renderFramedImage(arg_1, _arg_1, arg_2, _arg_2, arg_3, _arg_3, vertex) 
   ctx.restore();
 }
 
-function draw_frame(dots, frame_width, card_width, hls) {
+function draw_frame(dots, frame_width, card_x_width, card_y_width, hls) {
   if (dots != undefined && dots.length == 4) {
-    var card_box = find_outer_box(card_width, dots)
-    var frame_box = find_outer_box(frame_width, get_outer_dots(card_box))
+    var card_box = find_outer_card_dots(card_x_width, card_y_width, dots)
+    var frame_box = find_outer_box(frame_width, card_box)
+    // var card_box = find_outer_box(card_width, dots)
+    // var frame_box = find_outer_box(frame_width, get_outer_dots(card_box))
   
-    render(card_box, "card", card_width, hls)
+    draw_card(card_box)
+    // render(card_box, "card", card_width, hls)
     render(frame_box, "frame", frame_width, hls)
   }
 }
 
+function draw_card(card_box) {
+  var img = patterns["card"]["top"]["img"]
+  ctx.save();
+  ctx.beginPath();
+  ctx.moveTo(card_box[0].x, card_box[0].y);
+  ctx.lineTo(card_box[1].x, card_box[1].y);
+  ctx.lineTo(card_box[2].x, card_box[2].y);
+  ctx.lineTo(card_box[3].x, card_box[3].y);
+  ctx.closePath();
+  ctx.clip();
+  ctx.drawImage(img, 0, 0)
+  ctx.restore();
+}
+
 function get_outer_dots(box) {
   return [box.now["top"][3], box.now["right"][3], box.now["bottom"][3], box.now["left"][3]]
+}
+
+function find_outer_card_dots(card_x_width, card_y_width, dots) {
+  var va = new Vector(dots[0].x, dots[0].y)
+  var vb = new Vector(dots[1].x, dots[1].y)
+  var vc = new Vector(dots[2].x, dots[2].y)
+  var vd = new Vector(dots[3].x, dots[3].y)
+
+  var new_va = va.clone()
+  var new_vb = vb.clone()
+  var new_vc = vc.clone()
+  var new_vd = vd.clone()
+
+  var vab = vb.sub(va)
+  var vbc = vc.sub(vb)
+  var vcd = vd.sub(vc)
+  var vda = va.sub(vd)
+  
+  var shift_vab = vab.normalize().mulScalar(card_y_width)
+  var shift_vbc = vbc.normalize().mulScalar(card_x_width)
+  var shift_vcd = vcd.normalize().mulScalar(card_y_width)
+  var shift_vda = vda.normalize().mulScalar(card_x_width)
+
+  new_va.addSelf(shift_vda).subSelf(shift_vab)
+  new_vb.addSelf(shift_vab).subSelf(shift_vbc)
+  new_vc.addSelf(shift_vbc).subSelf(shift_vcd)
+  new_vd.addSelf(shift_vcd).subSelf(shift_vda)
+
+  return [new_va, new_vb, new_vc, new_vd]
 }
 
 function find_outer_box(width, dots) {

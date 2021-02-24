@@ -16,7 +16,9 @@
       <view class="slider">
         <view class="sliders_container">
           <slider bindchanging="slider_change" min="10" max="80" value="40" activeColor="#ffe75e" hidden="{{current_choose_panel!=0}}"></slider>
-          <slider bindchanging="slider_change" min="10" max="80" value="30" activeColor="#ffe75e" hidden="{{current_choose_panel!=1}}"></slider>
+          <slider bindchanging="slider_change" min="10" max="80" value="30" activeColor="#ffe75e" hidden="{{current_choose_panel!=1}}" style="width:36vw" data-card_direction="x" show-value></slider>
+          <view style="width:4vw" hidden="{{current_choose_panel!=1}}"></view>
+          <slider bindchanging="slider_change" min="10" max="80" value="30" activeColor="#ffe75e" hidden="{{current_choose_panel!=1}}" style="width:36vw" data-card_direction="y" show-value></slider>
           <slider min="10" max="200" value="80" activeColor="#e9e9e9" disabled="true" hidden="{{current_choose_panel!=2}}"></slider>
           <slider min="10" max="200" value="80" activeColor="#e9e9e9" disabled="true" hidden="{{current_choose_panel!=3}}"></slider>
           <slider min="10" max="200" value="80" activeColor="#e9e9e9" disabled="true" hidden="{{current_choose_panel!=4}}"></slider>
