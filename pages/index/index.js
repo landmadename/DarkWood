@@ -219,7 +219,8 @@ Page({
         } else {
           // 缩放
           let scale_offset = move_tools.get_scale_offset(e.touches)
-          cardboard_size = move_tools.scale(scale_offset, cardboard_size)
+          cardboard_x_size = move_tools.scale(scale_offset, cardboard_x_size)
+          cardboard_y_size = move_tools.scale(scale_offset, cardboard_y_size)
           frame_size = move_tools.scale(scale_offset, frame_size)
           // console.log(scale_offset, cardboard_size, frame_size)
           move_tools.scale_shift(quadrangle_to_show, scale_offset)
@@ -241,7 +242,6 @@ Page({
       if (this.data.current_choose_panel == 0) {
         frame_size = e.detail.value
       } else if (this.data.current_choose_panel == 1){
-        cardboard_size = e.detail.value
         if (e.currentTarget.dataset.card_direction=="x") {
           cardboard_x_size = e.detail.value
         } else {
@@ -382,7 +382,7 @@ Page({
       } else {
         await save_painter.draw_scene(cvs_scene, ctx_scene, this.data.scenes[scene_id]["img"])
       }
-      await save_painter.draw(cvs_work, ctx_work, frame_size, cardboard_size, hls, quadrangle_to_show, raw_quadrangle)
+      await save_painter.draw(cvs_work, ctx_work, frame_size, cardboard_x_size, cardboard_y_size, hls, quadrangle_to_show, raw_quadrangle)
       save_painter.save()
     }
   },

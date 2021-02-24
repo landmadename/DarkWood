@@ -38,9 +38,11 @@
       <view class="choose_panel" wx:if="{{current_choose_panel==0}}">
         <view class="panel_button" bindtap="scan_code">
           <view class="qr_icon"></view>
+          <view class="icon_words">扫二维码</view>
         </view>
-        <view class="panel_button" style="display: inline-block;" bindtap="tap_ruler">
+        <view class="panel_button" bindtap="tap_ruler">
             <view class="ruler_icon"></view>
+            <view class="icon_words">真实比例</view>
         </view>
         <scroll-view scroll-x="true" class="choices_container" enable-flex="true" style="width:60vw">
           <view class="panel_button" style="display: inline-block;" bindtap="tap_random_choose" data-type="frames">
@@ -56,6 +58,7 @@
       <view class="choose_panel" wx:if="{{current_choose_panel==1}}">
         <view class="panel_button" bindtap="scan_code">
           <view class="qr_icon"></view>
+          <view class="icon_words">扫二维码</view>
         </view>
         <scroll-view scroll-x="true" class="choices_container" enable-flex="true">
           <view class="panel_button" style="display: inline-block;" bindtap="tap_random_choose" data-type="cards">
@@ -67,17 +70,39 @@
           </view>
         </scroll-view>
       </view>
-      <!-- 场景选择面板 -->
+      <!-- 内框选择面板 -->
       <view class="choose_panel" wx:if="{{current_choose_panel==2}}">
-        <view class="panel_button" bindtap="tap_camera">
-          <view class="camera_icon"></view>
+        <view class="panel_button" bindtap="scan_code">
+          <view class="qr_icon"></view>
+          <view class="icon_words">扫二维码</view>
         </view>
-        <scroll-view scroll-x="true" class="choices_container" enable-flex="true">
+        <view class="panel_button" bindtap="scan_code">
+          <view class="cancel_icon"></view>
+          <view class="icon_words">取消内框</view>
+        </view>
+        <scroll-view scroll-x="true" class="choices_container" enable-flex="true" style="width:60vw">
           <view class="panel_button" style="display: inline-block;" bindtap="tap_random_choose" data-type="scenes">
             <view class="dice_icon"></view>
           </view>
-          <view class="panel_button" style="display: inline-block;" data-scene_id="{{transparent_scene_id}}" bindtap="tap_to_change_scene">
+          <view wx:for="{{scenes}}" wx:key="*this" class="choice_box" wx:if="{{item.id != transparent_scene_id && item.id != -1}}">
+            <view class="chosen_mark" data-choosen="{{current_scene_id == item.id}}"></view>
+            <image class="choice_img" src="{{item.prev}}" data-scene_id="{{item.id}}" bindtap="tap_to_change_scene"></image>
+          </view>
+        </scroll-view>
+      </view>
+      <!-- 场景选择面板 -->
+      <view class="choose_panel" wx:if="{{current_choose_panel==3}}">
+        <view class="panel_button" bindtap="tap_camera">
+          <view class="camera_icon"></view>
+          <view class="icon_words">拍摄场景</view>
+        </view>
+        <view class="panel_button" data-scene_id="{{transparent_scene_id}}" bindtap="tap_to_change_scene">
             <view class="transparent_icon"></view>
+            <view class="icon_words">透明场景</view>
+        </view>
+        <scroll-view scroll-x="true" class="choices_container" enable-flex="true" style="width:60vw">
+          <view class="panel_button" style="display: inline-block;" bindtap="tap_random_choose" data-type="scenes">
+            <view class="dice_icon"></view>
           </view>
           <view wx:for="{{scenes}}" wx:key="*this" class="choice_box" wx:if="{{item.id != transparent_scene_id && item.id != -1}}">
             <view class="chosen_mark" data-choosen="{{current_scene_id == item.id}}"></view>
@@ -95,10 +120,7 @@
         </view>
       </view> -->
       <!-- 保存选择面板 -->
-      <view class="choose_panel" wx:if="{{current_choose_panel==4}}">
-        <!-- <view class="panel_button" bindtap="intelligent_recommend">
-          <view class="idea_icon"></view>
-        </view> -->
+      <!-- <view class="choose_panel" wx:if="{{current_choose_panel==4}}">
         <view class="panel_button" bindtap="tap_random_choose" data-type="frames_and_cards">
           <view class="dice_icon"></view>
         </view>
@@ -111,11 +133,11 @@
         <view class="panel_button" bindtap="save">
           <view class="save2_icon"></view>
         </view>
-      </view>
+      </view> -->
     </view>
 
     <!-- 菜单栏 -->
-    <view class="menu_selected_mark" style="transform: translateX({{20*current_choose_panel+5}}vw)">
+    <view class="menu_selected_mark" style="transform: translateX({{13.42*current_choose_panel+5}}vw)">
       <view class="menu_selected_mark_left"></view>
       <view class="menu_selected_mark_center"></view>
       <view class="menu_selected_mark_right"></view>
@@ -129,15 +151,23 @@
         <view class="cardboard_icon icon"></view>
         <text>卡纸</text>
       </view>
-      <view class="scene menu_item" bindtap="tap_to_change_choose_panel" data-panel_id="2">
+      <view class="inner_frame menu_item" bindtap="tap_to_change_choose_panel" data-panel_id="2">
+        <view class="inner_frame_icon icon"></view>
+        <text>内框</text>
+      </view>
+      <view class="scene menu_item" bindtap="tap_to_change_choose_panel" data-panel_id="3">
         <view class="scene_icon icon"></view>
         <text>场景</text>
       </view>
-      <view class="mode menu_item" bindtap="to_pic" data-panel_id="3">
+      <view class="menu_item" bindtap="to_pic">
         <view class="pic_white_icon icon"></view>
         <text>选图</text>
       </view>
-      <view class="save menu_item" bindtap="tap_to_change_choose_panel" data-panel_id="4">
+      <view class="correct menu_item" bindtap="correct">
+        <view class="correct_icon icon"></view>
+        <text>矫正</text>
+      </view>
+      <view class="save menu_item" bindtap="save">
         <view class="save_icon icon"></view>
         <text>保存</text>
       </view>

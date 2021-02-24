@@ -26,10 +26,10 @@ function draw_scene(cvs_raw, ctx_raw, img) {
   })
 }
 
-function draw(cvs_raw, ctx_raw, frame_size, cardboard_size, hls, quadrangle, raw_quadrangle) {
+function draw(cvs_raw, ctx_raw, frame_size, card_x_width, card_y_width, hls, quadrangle, raw_quadrangle) {
   return new Promise((resolve, reject) => {
     main_painter.init(cvs, ctx)
-    main_painter.draw_frame(quadrangle, frame_size, cardboard_size, hls)
+    main_painter.draw_frame(quadrangle, frame_size, card_x_width, card_y_width, hls)
     main_painter.draw_framed_image(quadrangle, raw_quadrangle)
     setTimeout(
       ()=>{
