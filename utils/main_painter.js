@@ -22,7 +22,7 @@ function clear() {
 function load_imgs(patterns) {
   return new Promise((resolve, reject) => {
     var cnt = 8
-    for (let type in patterns){
+    for (let type in {"frame":0, "card":0}){
       for (let site in patterns[type]){
         patterns[type][site]["img"] = cvs.createImage()
         patterns[type][site]["img"].src = patterns[type][site]["path"]
@@ -72,30 +72,47 @@ function renderFramedImage(arg_1, _arg_1, arg_2, _arg_2, arg_3, _arg_3, vertex) 
   ctx.restore();
 }
 
-function draw_frame(dots, frame_width, card_x_width, card_y_width, hls) {
+function draw_frame(dots, frame_width, card_x_width, card_y_width, inner_frame_size, hls) {
   if (dots != undefined && dots.length == 4) {
-    var card_box = find_outer_card_dots(card_x_width, card_y_width, dots)
-    var frame_box = find_outer_box(frame_width, card_box)
+    var inner_frame_width = inner_frame_size/8
+    var inner_frame_dots = find_outer_dots(inner_frame_width, inner_frame_width, dots)
+    var card_dots = find_outer_dots(card_x_width, card_y_width, dots)
+    var frame_box = find_outer_box(frame_width, card_dots)
     // var card_box = find_outer_box(card_width, dots)
     // var frame_box = find_outer_box(frame_width, get_outer_dots(card_box))
   
-    draw_card(card_box)
+    draw_card(card_dots)
+    draw_inner_frame(inner_frame_dots)
     // render(card_box, "card", card_width, hls)
     render(frame_box, "frame", frame_width, hls)
   }
 }
 
-function draw_card(card_box) {
+function draw_card(card_dots) {
   var img = patterns["card"]["top"]["img"]
   ctx.save();
   ctx.beginPath();
-  ctx.moveTo(card_box[0].x, card_box[0].y);
-  ctx.lineTo(card_box[1].x, card_box[1].y);
-  ctx.lineTo(card_box[2].x, card_box[2].y);
-  ctx.lineTo(card_box[3].x, card_box[3].y);
+  ctx.moveTo(card_dots[0].x, card_dots[0].y);
+  ctx.lineTo(card_dots[1].x, card_dots[1].y);
+  ctx.lineTo(card_dots[2].x, card_dots[2].y);
+  ctx.lineTo(card_dots[3].x, card_dots[3].y);
   ctx.closePath();
   ctx.clip();
   ctx.drawImage(img, 0, 0)
+  ctx.restore();
+}
+
+function draw_inner_frame(inner_frame_dots) {
+  ctx.save();
+  ctx.beginPath();
+  ctx.moveTo(inner_frame_dots[0].x, inner_frame_dots[0].y);
+  ctx.lineTo(inner_frame_dots[1].x, inner_frame_dots[1].y);
+  ctx.lineTo(inner_frame_dots[2].x, inner_frame_dots[2].y);
+  ctx.lineTo(inner_frame_dots[3].x, inner_frame_dots[3].y);
+  ctx.closePath();
+  ctx.clip();
+  ctx.fillStyle = "rgba(" + patterns["inner_frame"][0] + ", " + patterns["inner_frame"][1] + ", " + patterns["inner_frame"][2] + ", " + patterns["inner_frame"][3] + ")"
+  ctx.fillRect(0,0,1000,1000);
   ctx.restore();
 }
 
@@ -103,7 +120,7 @@ function get_outer_dots(box) {
   return [box.now["top"][3], box.now["right"][3], box.now["bottom"][3], box.now["left"][3]]
 }
 
-function find_outer_card_dots(card_x_width, card_y_width, dots) {
+function find_outer_dots(card_x_width, card_y_width, dots) {
   var va = new Vector(dots[0].x, dots[0].y)
   var vb = new Vector(dots[1].x, dots[1].y)
   var vc = new Vector(dots[2].x, dots[2].y)

@@ -19,7 +19,7 @@
           <slider bindchanging="slider_change" min="10" max="80" value="30" activeColor="#ffe75e" hidden="{{current_choose_panel!=1}}" style="width:36vw" data-card_direction="x" show-value></slider>
           <view style="width:4vw" hidden="{{current_choose_panel!=1}}"></view>
           <slider bindchanging="slider_change" min="10" max="80" value="30" activeColor="#ffe75e" hidden="{{current_choose_panel!=1}}" style="width:36vw" data-card_direction="y" show-value></slider>
-          <slider min="10" max="200" value="80" activeColor="#e9e9e9" disabled="true" hidden="{{current_choose_panel!=2}}"></slider>
+          <slider bindchanging="slider_change" min="10" max="80" value="40" activeColor="#ffe75e" hidden="{{current_choose_panel!=2}}"></slider>
           <slider min="10" max="200" value="80" activeColor="#e9e9e9" disabled="true" hidden="{{current_choose_panel!=3}}"></slider>
           <slider min="10" max="200" value="80" activeColor="#e9e9e9" disabled="true" hidden="{{current_choose_panel!=4}}"></slider>
         </view>
@@ -76,7 +76,7 @@
           <view class="qr_icon"></view>
           <view class="icon_words">扫二维码</view>
         </view>
-        <view class="panel_button" bindtap="scan_code">
+        <view class="panel_button" bindtap="cancel_inner_frame">
           <view class="cancel_icon"></view>
           <view class="icon_words">取消内框</view>
         </view>
@@ -84,9 +84,9 @@
           <view class="panel_button" style="display: inline-block;" bindtap="tap_random_choose" data-type="scenes">
             <view class="dice_icon"></view>
           </view>
-          <view wx:for="{{scenes}}" wx:key="*this" class="choice_box" wx:if="{{item.id != transparent_scene_id && item.id != -1}}">
-            <view class="chosen_mark" data-choosen="{{current_scene_id == item.id}}"></view>
-            <image class="choice_img" src="{{item.prev}}" data-scene_id="{{item.id}}" bindtap="tap_to_change_scene"></image>
+          <view wx:for="{{inner_frames}}" wx:key="*this" class="choice_box" wx:if="{{item.id != -1}}">
+            <view class="chosen_mark" data-choosen="{{current_inner_frame_id == item.id}}"></view>
+            <image class="choice_img" src="{{item.prev}}" data-inner_frame_id="{{item.id}}" bindtap="tap_to_change_inner_frame"></image>
           </view>
         </scroll-view>
       </view>

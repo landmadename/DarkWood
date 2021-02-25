@@ -16,8 +16,8 @@ var cvs_work, ctx_work;
 var cvs_save, ctx_save;
 
 var quadrangle_to_show, raw_quadrangle;
-var frame_size=40, cardboard_x_size=30, cardboard_y_size=30;
-var frame_id=20, card_id=6, scene_id=-1;
+var frame_size=40, cardboard_x_size=30, cardboard_y_size=30, inner_frame_size=40;
+var frame_id=20, card_id=6, scene_id=-1, inner_frame_id=-1;
 var moving_point_index = false;
 var custom_scene;
 var frames_hue = {
@@ -41,6 +41,7 @@ Page({
     current_frame_id: 4, 
     current_card_id: 6,
     current_scene_id: -1,
+    current_inner_frame_id: -1,
     quadrangle:[],
 
     canvas_size: {
@@ -222,6 +223,7 @@ Page({
           cardboard_x_size = move_tools.scale(scale_offset, cardboard_x_size)
           cardboard_y_size = move_tools.scale(scale_offset, cardboard_y_size)
           frame_size = move_tools.scale(scale_offset, frame_size)
+          inner_frame_size = move_tools.scale(scale_offset, inner_frame_size)
           // console.log(scale_offset, cardboard_size, frame_size)
           move_tools.scale_shift(quadrangle_to_show, scale_offset)
         }
@@ -247,6 +249,8 @@ Page({
         } else {
           cardboard_y_size = e.detail.value
         }
+      } else if (this.data.current_choose_panel == 2){
+        inner_frame_size = e.detail.value
       }
       this.draw()  
     }
@@ -285,6 +289,11 @@ Page({
     } else {
       tools.random_choose(type)
     }
+  },
+
+  tap_to_change_inner_frame: function(e) {
+    inner_frame_id = parseInt(e.currentTarget.dataset.inner_frame_id)
+    tools.set_inner_frame(inner_frame_id)
   },
 
   tap_to_change_choose_panel: function(e) {
@@ -368,6 +377,10 @@ Page({
     })
   },
 
+  cancel_inner_frame: function () {
+    this.tap_to_change_inner_frame({currentTarget: {dataset: {inner_frame_id: -1}}})
+  },
+
   correct: function () {
     move_tools.correct(quadrangle_to_show)
     this.draw()
@@ -407,7 +420,8 @@ Page({
     tools.load_frames("https://backendofdarkwood.lamony.cn")
     tools.load_cards ("https://backendofdarkwood.lamony.cn")
     tools.load_scenes("https://backendofdarkwood.lamony.cn")
-    tools.load_album ("https://backendofdarkwood.lamony.cn")
+    tools.load_album("https://backendofdarkwood.lamony.cn")
+    tools.load_inner_frames("https://backendofdarkwood.lamony.cn")
     tools.set_canvas_size()
 
     setTimeout(() => {
@@ -448,7 +462,13 @@ Page({
         "right":  {"path":this.data.cards[card_id]["img"]},
         "bottom": {"path":this.data.cards[card_id]["img"]},
         "left":   {"path":this.data.cards[card_id]["img"]}  
-      }
+      },
+      "inner_frame": [
+        (inner_frame_id>0? this.data.inner_frames[inner_frame_id]["red"]:0), 
+        (inner_frame_id>0? this.data.inner_frames[inner_frame_id]["green"]:0), 
+        (inner_frame_id>0? this.data.inner_frames[inner_frame_id]["blue"]:0), 
+        (inner_frame_id>0? 255:0)
+      ]
     },
     this.draw
     )
@@ -486,7 +506,7 @@ Page({
   draw: function () {
     main_painter.clear()
     if (tools.quadrangle_is_ready(quadrangle_to_show)) {
-      main_painter.draw_frame(quadrangle_to_show, frame_size, cardboard_x_size, cardboard_y_size, hls)
+      main_painter.draw_frame(quadrangle_to_show, frame_size, cardboard_x_size, cardboard_y_size, inner_frame_size, hls)
       if (tools.in_pic_mode()) {
         main_painter.draw_framed_image(quadrangle_to_show, raw_quadrangle)
       }

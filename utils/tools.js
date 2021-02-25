@@ -131,6 +131,30 @@ function load_scenes(site) {
     })
 }
 
+function load_inner_frames(site) {
+    wx.request({
+        url: site + '/api/v2/pages/?type=frame.InnerFramePage&fields=*',
+        method: 'GET',
+        success: function (res) {
+            var inner_frames = {}
+            res.data.items.forEach(i => {
+                inner_frames[i.id] = {
+                    id: i.id,
+                    prev: site + i.prev.meta.download_url,
+                    red: i.red,
+                    green: i.green,
+                    blue: i.blue,
+                }
+            }); 
+            that.setData({
+                inner_frames: inner_frames
+            })
+            loaded_count++
+            check_and_set_patterns()
+        }
+    })
+}
+
 function load_album(site) {
     wx.request({
         url: site + "/api/v2/images/?limit=500",
@@ -192,7 +216,7 @@ function parse_content(raw) {
 }
 
 function check_and_set_patterns() {
-    if (loaded_count == 3) {
+    if (loaded_count == 4) {
         setTimeout(() => {
             that.set_patterns()
         }, 2000);
@@ -324,6 +348,13 @@ function set_card(card_id) {
     that.set_patterns()
 }
 
+function set_inner_frame(inner_frame_id) {
+    that.setData({
+        current_inner_frame_id: inner_frame_id
+    })
+    that.set_patterns()
+}
+
 module.exports = {
     set_cv: set_cv,
     set_this: set_this,
@@ -333,6 +364,7 @@ module.exports = {
     load_frames: load_frames,
     load_cards: load_cards,
     load_scenes: load_scenes,
+    load_inner_frames: load_inner_frames,
 
     get_offset_from_canvas_to_camera: get_offset_from_canvas_to_camera,
     get_scale_from_canvas_to_camera:
@@ -353,5 +385,6 @@ module.exports = {
     parse_history: parse_history,
     find_closest_by_value: find_closest_by_value,
     set_frame: set_frame,
-    set_card: set_card
+    set_card: set_card,
+    set_inner_frame: set_inner_frame
 }
