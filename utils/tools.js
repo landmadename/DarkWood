@@ -2,6 +2,7 @@ var cv
 var that
 var loaded_count = 0
 const app = getApp()
+app.globalData.album = {}
 
 function set_cv(cv_input) {
     cv = cv_input
@@ -133,7 +134,7 @@ function load_scenes(site) {
 
 function load_inner_frames(site) {
     wx.request({
-        url: site + '/api/v2/pages/?type=frame.InnerFramePage&fields=*',
+        url: site + '/api/v2/pages/?type=frame.InnerFramePage&fields=*&limit=500',
         method: 'GET',
         success: function (res) {
             var inner_frames = {}
@@ -156,16 +157,21 @@ function load_inner_frames(site) {
 }
 
 function load_album(site) {
+    load_batch_album(site, "/api/v2/images/?limit=500&offset=", 0)
+}
+
+function load_batch_album(site, path, offset) {
     wx.request({
-        url: site + "/api/v2/images/?limit=500",
+        url: site + path + offset,
         method: 'GET',
         success: function (result) {
             result = result.data
-            var album = {}
             for(let i in result.items){
-                album[result.items[i].id] = site + result.items[i].meta.download_url
-            }      
-            app.globalData.album = album
+                app.globalData.album[result.items[i].id] = site + result.items[i].meta.download_url
+            }
+            if (result.items != []) {
+                load_batch_album(site, "/api/v2/images/?limit=500&offset=", offset+500)
+            }
         }
     })
 }
