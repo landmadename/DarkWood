@@ -81,7 +81,7 @@
           <view class="icon_words">取消内框</view>
         </view>
         <scroll-view scroll-x="true" class="choices_container" enable-flex="true" style="width:60vw">
-          <view class="panel_button" style="display: inline-block;" bindtap="tap_random_choose" data-type="scenes">
+          <view class="panel_button" style="display: inline-block;" bindtap="tap_random_choose" data-type="inner_frames">
             <view class="dice_icon"></view>
           </view>
           <view wx:for="{{inner_frames}}" wx:key="*this" class="choice_box" wx:if="{{item.id != -1}}">

@@ -17,7 +17,7 @@ var cvs_save, ctx_save;
 
 var quadrangle_to_show, raw_quadrangle;
 var frame_size=40, cardboard_x_size=30, cardboard_y_size=30, inner_frame_size=40;
-var frame_id=20, card_id=6, scene_id=-1, inner_frame_id=-1;
+var frame_id=20, card_id=105, scene_id=-1, inner_frame_id=-1;
 var moving_point_index = false;
 var custom_scene;
 var frames_hue = {
@@ -38,8 +38,8 @@ Page({
     frames: {},
     cards: {},
     scenes: {},
-    current_frame_id: 4, 
-    current_card_id: 6,
+    current_frame_id: 20, 
+    current_card_id: 105,
     current_scene_id: -1,
     current_inner_frame_id: -1,
     quadrangle:[],
@@ -281,14 +281,7 @@ Page({
 
   tap_random_choose: function (e) {
     var type = e.currentTarget.dataset.type
-    if (type == "frames_and_cards") {
-      type = "frames"
-      tools.random_choose(type)
-      type = "cards"
-      tools.random_choose(type)
-    } else {
-      tools.random_choose(type)
-    }
+    tools.random_choose(type)
   },
 
   tap_to_change_inner_frame: function(e) {

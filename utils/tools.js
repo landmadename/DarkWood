@@ -283,6 +283,9 @@ function random_choose(type) {
     } else if (type == "scenes") {
         e = {currentTarget: {dataset: {scene_id: randomElement}}}
         that.tap_to_change_scene(e)
+    } else if (type == "inner_frames") {
+        e = {currentTarget: {dataset: {inner_frame_id: randomElement}}}
+        that.tap_to_change_inner_frame(e)
     }
 }
 
