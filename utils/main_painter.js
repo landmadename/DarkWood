@@ -21,8 +21,8 @@ function clear() {
 
 function load_imgs(patterns) {
   return new Promise((resolve, reject) => {
-    var cnt = 8
-    for (let type in {"frame":0, "card":0}){
+    var cnt = (patterns["card"]["top"]["path"]==0? 4:5)
+    for (let type in (patterns["card"]["top"]["path"]==0? {"frame":0}:{"frame":0, "card":0}) ){
       for (let site in patterns[type]){
         patterns[type][site]["img"] = cvs.createImage()
         patterns[type][site]["img"].src = patterns[type][site]["path"]
@@ -76,15 +76,18 @@ function draw_frame(dots, frame_width, card_x_width, card_y_width, inner_frame_s
   if (dots != undefined && dots.length == 4) {
     var inner_frame_width = inner_frame_size/8
     var inner_frame_dots = find_outer_dots(inner_frame_width, inner_frame_width, dots)
-    var card_dots = find_outer_dots(card_x_width, card_y_width, dots)
-    var frame_box = find_outer_box(frame_width, card_dots)
-    // var card_box = find_outer_box(card_width, dots)
-    // var frame_box = find_outer_box(frame_width, get_outer_dots(card_box))
-  
-    draw_card(card_dots)
-    draw_inner_frame(inner_frame_dots)
-    // render(card_box, "card", card_width, hls)
-    render(frame_box, "frame", frame_width, hls)
+    if (patterns["card"]["top"]["path"]==0) {
+      var frame_box = find_outer_box(frame_width, dots)
+    
+      render(frame_box, "frame", frame_width, hls)  
+    } else {
+      var card_dots = find_outer_dots(card_x_width, card_y_width, dots)
+      var frame_box = find_outer_box(frame_width, card_dots)
+    
+      draw_card(card_dots)
+      draw_inner_frame(inner_frame_dots)
+      render(frame_box, "frame", frame_width, hls)  
+    }
   }
 }
 

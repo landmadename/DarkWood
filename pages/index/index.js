@@ -374,6 +374,12 @@ Page({
     this.tap_to_change_inner_frame({currentTarget: {dataset: {inner_frame_id: -1}}})
   },
 
+  cancel_card: function () {
+    // this.tap_to_change_card({currentTarget: {dataset: {card_id: -1}}})
+    card_id = -1
+    tools.set_card(card_id)
+  },
+
   correct: function () {
     move_tools.correct(quadrangle_to_show)
     this.draw()
@@ -451,10 +457,7 @@ Page({
         "left":   {"path":this.data.frames[frame_id]["bottom"]}  
       },
       "card": {
-        "top":    {"path":this.data.cards[card_id]["img"]},
-        "right":  {"path":this.data.cards[card_id]["img"]},
-        "bottom": {"path":this.data.cards[card_id]["img"]},
-        "left":   {"path":this.data.cards[card_id]["img"]}  
+        "top":    {"path":(card_id>0? this.data.cards[card_id]["img"]:0)}
       },
       "inner_frame": [
         (inner_frame_id>0? this.data.inner_frames[inner_frame_id]["red"]:0), 

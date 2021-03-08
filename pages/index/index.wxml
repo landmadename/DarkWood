@@ -60,7 +60,12 @@
           <view class="qr_icon"></view>
           <view class="icon_words">扫二维码</view>
         </view>
-        <scroll-view scroll-x="true" class="choices_container" enable-flex="true">
+        <view class="panel_button" bindtap="cancel_card">
+          <view class="cancel_icon"></view>
+          <view class="icon_words">取消卡纸</view>
+        </view>
+
+        <scroll-view scroll-x="true" class="choices_container" enable-flex="true" style="width:60vw">
           <view class="panel_button" style="display: inline-block;" bindtap="tap_random_choose" data-type="cards">
             <view class="dice_icon"></view>
           </view>
