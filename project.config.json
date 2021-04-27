@@ -33,7 +33,7 @@
     "minifyWXSS": true
   },
   "compileType": "miniprogram",
-  "libVersion": "2.12.1",
+  "libVersion": "2.12.3",
   "appid": "wx41efc1ed4e8f2180",
   "projectname": "DarkWood",
   "debugOptions": {

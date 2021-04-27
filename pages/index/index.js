@@ -342,10 +342,10 @@ Page({
     app.globalData.card_id = -1
     tools.set_this(this)
     this.load_cvs_ctx_and_initial()
-    tools.load_frames("http://47.99.244.218:8090")
-    tools.load_cards ("http://47.99.244.218:8090")
-    tools.load_scenes("http://47.99.244.218:8090")
-    tools.load_album ("http://47.99.244.218:8090")
+    tools.load_frames("https://backendofdarkwood.lamony.cn")
+    tools.load_cards ("https://backendofdarkwood.lamony.cn")
+    tools.load_scenes("https://backendofdarkwood.lamony.cn")
+    tools.load_album ("https://backendofdarkwood.lamony.cn")
     tools.set_canvas_size()
 
     setTimeout(() => {
